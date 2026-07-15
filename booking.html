@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Book your ride | RYDE Premium Chauffeur | Netherlands</title>
+    <meta name="description" content="Book a premium chauffeur-driven transfer with RYDE. Fixed pricing, professional drivers, available 24/7 across the Netherlands, Germany and Belgium.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/booking.css">
+    <link rel="stylesheet" href="css/maps.css">
+
+</head>
+
+<body>
+
+<!-- ==========================
+     Header
+========================== -->
+
+<header>
+
+    <nav>
+
+        <div class="container nav-container">
+
+            <!-- Logo -->
+
+            <a href="index.html" class="logo">
+                RYDE<span>.</span>
+            </a>
+
+            <!-- Desktop Navigation -->
+
+            <ul class="nav-links">
+
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#coverage">Coverage</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#routes">Routes &amp; Prices</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+
+            </ul>
+
+            <!-- Navigation Actions -->
+
+            <div class="nav-cta">
+
+                <a href="#bookingForm" class="btn btn-primary">
+                    Book now
+                </a>
+
+                <button
+                    class="nav-toggle"
+                    type="button"
+                    aria-label="Open navigation"
+                    aria-expanded="false"
+                    aria-controls="mobile-nav">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- ==========================
+             Mobile Navigation
+        =========================== -->
+
+        <div
+            class="mobile-nav"
+            id="mobile-nav"
+            aria-hidden="true">
+
+            <div class="mobile-nav-header">
+
+                <a href="index.html" class="logo">
+                    RYDE<span>.</span>
+                </a>
+
+                <button
+                    class="mobile-close"
+                    type="button"
+                    aria-label="Close navigation">
+
+                    ✕
+
+                </button>
+
+            </div>
+
+            <ul class="mobile-links">
+
+                <li><a href="index.html#home">Home</a></li>
+
+                <li><a href="index.html#coverage">Coverage</a></li>
+
+                <li><a href="index.html#services">Services</a></li>
+
+                <li><a href="index.html#routes">Routes &amp; Prices</a></li>
+
+                <li><a href="index.html#contact">Contact</a></li>
+
+            </ul>
+
+            <div class="mobile-nav-footer">
+
+                <a href="#bookingForm" class="btn btn-primary">
+    Book your ride
+</a>
+
+            </div>
+
+        </div>
+
+    </nav>
+    <div class="nav-overlay"></div>
+
+</header>
+
+    <!-- ==========================
+         Main Content
+    =========================== -->
+
+    <main>
+
+        <!-- ==========================
+             Booking intro
+        ========================== -->
+
+        <section class="booking-intro">
+
+            <div class="container">
+
+                <span class="section-tag">Book your ride</span>
+
+                <h1>Where can we take you?</h1>
+
+                <p class="section-text">
+                    Tell us your pickup, destination and preferred vehicle —
+                    we'll take care of the rest. Fixed pricing, professional
+                    drivers, available 24/7 across the Netherlands, Germany
+                    and Belgium.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- ==========================
+             Booking form + summary
+        ========================== -->
+
+        <section class="booking-section">
+
+            <div class="container">
+
+                <!-- ==========================
+                     Live route map (Phase 3)
+                ========================== -->
+
+                <div class="booking-map-card card reveal">
+
+                    <div class="booking-map-header">
+
+                        <h3>Live route</h3>
+                        <span class="booking-map-badge">Google Maps</span>
+
+                    </div>
+
+                    <div id="bookingMap" class="booking-map" role="img" aria-label="Map showing your pickup and destination route"></div>
+
+                    <p class="booking-map-status" id="bookingMapStatus" aria-live="polite" hidden></p>
+
+                </div>
+
+            </div>
+
+            <div class="container booking-grid">
+
+                <!-- Form -->
+
+                <div class="booking-form-card card reveal">
+
+                    <form id="bookingForm" class="booking-form" novalidate>
+
+                        <div class="form-row">
+
+                            <label for="pickup">
+                                <img src="images/icons/circle-dot.svg" class="field-icon" alt="">
+                                Pickup location
+                            </label>
+
+                            <input
+                                type="text"
+                                id="pickup"
+                                name="pickup"
+                                placeholder="e.g. Wageningen Campus"
+                                autocomplete="off"
+                                required
+                            >
+
+                            <div class="recent-chips" id="pickupRecent" hidden></div>
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <label for="destination">
+                                <img src="images/icons/map-pin.svg" class="field-icon" alt="">
+                                Destination
+                            </label>
+
+                            <input
+                                type="text"
+                                id="destination"
+                                name="destination"
+                                placeholder="e.g. Schiphol Airport"
+                                autocomplete="off"
+                                required
+                            >
+
+                            <div class="recent-chips" id="destinationRecent" hidden></div>
+
+                        </div>
+
+                        <div class="form-grid-2">
+
+                            <div class="form-row">
+
+                                <label for="date">
+                                    <img src="images/icons/calendar.svg" class="field-icon" alt="">
+                                    Date
+                                </label>
+
+                                <input type="date" id="date" name="date" required>
+
+                            </div>
+
+                            <div class="form-row">
+
+                                <label for="time">
+                                    <img src="images/icons/clock-3.svg" class="field-icon" alt="">
+                                    Time
+                                </label>
+
+                                <input type="time" id="time" name="time" required>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-grid-2">
+
+                            <div class="form-row">
+
+                                <label>
+                                    <img src="images/icons/users.svg" class="field-icon" alt="">
+                                    Passengers
+                                </label>
+
+                                <div class="stepper" data-stepper="passengers" data-min="1" data-max="8">
+
+                                    <button type="button" class="stepper-btn" data-action="decrease" aria-label="Fewer passengers">−</button>
+                                    <span class="stepper-value" id="passengersValue">1</span>
+                                    <button type="button" class="stepper-btn" data-action="increase" aria-label="More passengers">+</button>
+
+                                </div>
+
+                                <input type="hidden" name="passengers" id="passengersInput" value="1">
+
+                            </div>
+
+                            <div class="form-row">
+
+                                <label>
+                                    <img src="images/icons/briefcase-business.svg" class="field-icon" alt="">
+                                    Luggage
+                                </label>
+
+                                <div class="stepper" data-stepper="luggage" data-min="0" data-max="8">
+
+                                    <button type="button" class="stepper-btn" data-action="decrease" aria-label="Less luggage">−</button>
+                                    <span class="stepper-value" id="luggageValue">1</span>
+                                    <button type="button" class="stepper-btn" data-action="increase" aria-label="More luggage">+</button>
+
+                                </div>
+
+                                <input type="hidden" name="luggage" id="luggageInput" value="1">
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <label>
+                                <img src="images/icons/car-taxi-front.svg" class="field-icon" alt="">
+                                Vehicle
+                            </label>
+
+                            <div class="vehicle-options" id="vehicleOptions">
+
+                                <label class="vehicle-option">
+
+                                    <input type="radio" name="vehicle" value="standard" checked>
+
+                                    <span class="vehicle-card">
+                                        <span class="vehicle-name">Standard</span>
+                                        <span class="vehicle-desc">Tesla Model 3 · up to 3 passengers</span>
+                                        <span class="vehicle-price">From €65</span>
+                                    </span>
+
+                                </label>
+
+                                <label class="vehicle-option">
+
+                                    <input type="radio" name="vehicle" value="business">
+
+                                    <span class="vehicle-card">
+                                        <span class="vehicle-name">Business</span>
+                                        <span class="vehicle-desc">Tesla Model S · up to 3 passengers</span>
+                                        <span class="vehicle-price">From €95</span>
+                                    </span>
+
+                                </label>
+
+                                <label class="vehicle-option">
+
+                                    <input type="radio" name="vehicle" value="van">
+
+                                    <span class="vehicle-card">
+                                        <span class="vehicle-name">Van</span>
+                                        <span class="vehicle-desc">Up to 7 passengers · extra luggage</span>
+                                        <span class="vehicle-price">From €120</span>
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <label for="notes">
+                                <img src="images/icons/message-square.svg" class="field-icon" alt="">
+                                Notes for your driver (optional)
+                            </label>
+
+                            <textarea
+                                id="notes"
+                                name="notes"
+                                placeholder="Flight number, extra stops, accessibility needs..."
+                            ></textarea>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary booking-submit">
+                            Review booking
+                        </button>
+
+                        <p class="booking-disclaimer" id="bookingFormMessage">
+                            This is a demo booking form — pricing shown is
+                            indicative and no payment is taken yet. Add a
+                            pickup and destination above for a live,
+                            distance-based estimate; online payment is
+                            coming in a future update.
+                        </p>
+
+                    </form>
+
+                </div>
+
+                <!-- Journey summary -->
+
+                <aside class="booking-summary card reveal" aria-live="polite">
+
+                    <h3>Journey summary</h3>
+
+                    <div class="summary-route">
+
+                        <div class="summary-route-point">
+                            <span class="dot pickup-dot"></span>
+                            <span id="summaryPickup">Add a pickup location</span>
+                        </div>
+
+                        <div class="summary-route-line"></div>
+
+                        <div class="summary-route-point">
+                            <span class="dot destination-dot"></span>
+                            <span id="summaryDestination">Add a destination</span>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-stats">
+
+                        <div class="summary-stat">
+                            <span class="label">Distance</span>
+                            <span class="value" id="summaryDistance">—</span>
+                        </div>
+
+                        <div class="summary-stat">
+                            <span class="label">Travel time</span>
+                            <span class="value" id="summaryDuration">—</span>
+                        </div>
+
+                        <div class="summary-stat">
+                            <span class="label">Vehicle</span>
+                            <span class="value" id="summaryVehicle">Standard</span>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-details">
+
+                        <div class="summary-detail-row">
+                            <span>Date &amp; time</span>
+                            <span id="summaryDateTime">Not set</span>
+                        </div>
+
+                        <div class="summary-detail-row">
+                            <span>Passengers</span>
+                            <span id="summaryPassengers">1</span>
+                        </div>
+
+                        <div class="summary-detail-row">
+                            <span>Luggage</span>
+                            <span id="summaryLuggage">1</span>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-fare">
+
+                        <span>Estimated fare</span>
+                        <span class="fare-amount" id="summaryFare">From €65<sup>*</sup></span>
+
+                    </div>
+
+                    <p class="summary-note">
+                        <sup>*</sup>Estimated only — live pricing based on
+                        real distance and traffic is coming soon. Final fare
+                        is always confirmed before your ride.
+                    </p>
+
+                </aside>
+
+            </div>
+
+        </section>
+
+    </main>
+
+<!-- ==========================
+     Footer
+========================== -->
+
+<footer>
+
+    <div class="container footer-grid">
+
+        <div>
+
+            <span class="footer-logo">
+                RYDE<span>.</span>
+            </span>
+
+            <p>
+
+                Premium chauffeur-driven transfers, business travel,
+                student transport and moving services - based in
+                Wageningen, Gelderland, and on the road in every
+                province of the Netherlands.
+
+            </p>
+
+        </div>
+
+        <div>
+
+            <h4>
+
+                Services
+
+            </h4>
+
+            <ul>
+
+                <li><a href="index.html#services">Airport transfers</a></li>
+
+                <li><a href="index.html#services">Business travel</a></li>
+
+                <li><a href="index.html#services">Student transport</a></li>
+
+                <li><a href="index.html#services">Moving services</a></li>
+
+            </ul>
+
+        </div>
+
+        <div>
+
+            <h4>
+
+                Contact
+
+            </h4>
+
+            <p>
+
+                Wageningen, Gelderland
+
+            </p>
+
+            <p>
+
+                Serving all of the Netherlands
+
+            </p>
+
+            <p>
+
+                info@ryde.nl
+
+            </p>
+
+            <p>
+
+                +31 6 1234 5678
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="copyright">
+
+        © 2026 RYDE. All rights reserved.
+
+    </div>
+
+</footer>
+
+<script src="js/navigation.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/counter.js"></script>
+<script src="js/active-nav.js"></script>
+<script src="js/script.js"></script>
+<script src="js/maps-config.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/booking.js"></script>
+<script src="js/recent-searches.js"></script>
+
+</body>
+</html>

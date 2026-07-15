@@ -1,0 +1,100 @@
+/* ==========================================
+   CONTACT
+========================================== */
+
+.contact{
+
+    padding:clamp(80px,10vw,140px) 0;
+    background:var(--paper);
+
+}
+
+.contact-grid{
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:72px;
+    align-items:start;
+
+}
+
+.contact-details{
+
+    margin-top:36px;
+    display:grid;
+    gap:26px;
+
+}
+
+.contact-item h4{
+
+    margin-bottom:6px;
+    color:var(--ink);
+    font-size:.78rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    font-family:var(--font-mono);
+    font-weight:500;
+
+}
+
+.contact-item p{
+
+    font-size:1.02rem;
+    color:var(--slate);
+
+}
+
+.contact-form{
+
+    background:var(--white);
+    padding:40px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+
+}
+
+.contact-form form{
+
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+
+}
+
+.contact-form input,
+.contact-form textarea{
+
+    width:100%;
+    padding:15px 16px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    font-size:.98rem;
+    font-family:inherit;
+    background:var(--paper);
+    color:var(--ink);
+
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder{
+
+    color:var(--slate);
+
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus{
+
+    outline:none;
+    border-color:var(--lavender);
+    background:var(--white);
+
+}
+
+.contact-form textarea{
+
+    resize:vertical;
+    min-height:150px;
+
+}

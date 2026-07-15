@@ -1,0 +1,132 @@
+/* ==========================================
+   POPULAR ROUTES
+========================================== */
+
+.routes{
+
+    padding:clamp(80px,10vw,140px) 0;
+    background:var(--mist);
+
+}
+
+/* ==========================================
+   ROUTES GRID
+========================================== */
+
+.routes-grid{
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    margin-top:56px;
+
+}
+
+/* ==========================================
+   ROUTE CARD
+========================================== */
+
+.route-card{
+
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:32px;
+    transition:all var(--transition);
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+
+}
+
+.route-card:hover{
+
+    border-color:var(--lavender);
+    box-shadow:var(--shadow-md);
+    transform:translateY(-4px);
+
+}
+
+/* ==========================================
+   TEXT
+========================================== */
+
+.route-card h3{
+
+    font-size:1.2rem;
+    font-weight:500;
+    margin:0;
+
+}
+
+.route-card p{
+
+    margin:0;
+    color:var(--slate);
+    font-size:.92rem;
+
+}
+
+.route-meta{
+
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    padding-top:2px;
+
+}
+
+.route-duration{
+
+    font-family:var(--font-mono);
+    font-size:.78rem;
+    letter-spacing:.03em;
+    font-weight:500;
+    color:var(--slate-dim);
+
+}
+
+.route-price{
+
+    font-family:var(--font-display);
+    font-size:1.15rem;
+    font-weight:600;
+    color:var(--lavender-dark);
+
+}
+
+.route-price sup{
+
+    font-size:.65em;
+    margin-left:1px;
+
+}
+
+.routes-disclaimer{
+
+    margin-top:28px;
+    font-size:.82rem;
+    color:var(--slate-dim);
+    max-width:640px;
+
+}
+
+.routes-disclaimer sup{
+
+    margin-right:2px;
+
+}
+
+/* ==========================================
+   BUTTON
+========================================== */
+
+.route-card .btn{
+
+    margin-top:auto;
+    width:fit-content;
+    padding:11px 22px;
+    font-size:.86rem;
+
+}

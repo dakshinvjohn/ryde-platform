@@ -1,0 +1,89 @@
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.btn{
+
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    padding:15px 30px;
+
+    border-radius:var(--radius-sm);
+
+    transition:all var(--transition);
+
+    font-weight:600;
+    font-size:.95rem;
+
+    border:1px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+
+}
+
+.btn-primary{
+
+    background:var(--lavender);
+    color:var(--ink);
+
+}
+
+.btn-primary:hover{
+
+    background:var(--lavender-light);
+    transform:translateY(-2px);
+
+}
+
+/* Default: secondary button on light backgrounds */
+
+.btn-secondary{
+
+    border:1px solid var(--line);
+    color:var(--ink);
+    background:transparent;
+
+}
+
+.btn-secondary:hover{
+
+    border-color:var(--lavender);
+    color:var(--lavender-dark);
+    background:rgba(139,127,209,.06);
+
+}
+
+/* Secondary button sitting on a dark section (e.g. footer, coverage) */
+
+.dark-section .btn-secondary{
+
+    border:1px solid var(--line-dark);
+    color:var(--mist);
+
+}
+
+.dark-section .btn-secondary:hover{
+
+    border-color:var(--lavender);
+    color:var(--lavender-light);
+    background:rgba(139,127,209,.10);
+
+}
+
+/* Primary button on the lavender CTA band needs to invert */
+
+.cta .btn-primary{
+
+    background:var(--ink);
+    color:var(--mist);
+
+}
+
+.cta .btn-primary:hover{
+
+    background:var(--ink-soft);
+    transform:translateY(-3px);
+
+}

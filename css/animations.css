@@ -1,0 +1,85 @@
+/* ==========================================
+   REVEAL ANIMATIONS
+========================================== */
+
+.reveal{
+
+    opacity:0;
+
+    transform:translateY(40px);
+
+    transition:
+        opacity .8s ease,
+        transform .8s cubic-bezier(.22,1,.36,1);
+
+    will-change:transform, opacity;
+
+}
+
+.reveal.show{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+}
+
+/* ==========================================
+   STAGGER GROUPS
+========================================== */
+
+.reveal-group > *{
+
+    opacity:0;
+
+    transform:translateY(40px);
+
+    transition:
+        opacity .8s ease,
+        transform .8s cubic-bezier(.22,1,.36,1);
+
+}
+
+.reveal-group.show > *{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+}
+
+.reveal-group.show > *:nth-child(1){
+
+    transition-delay:.10s;
+
+}
+
+.reveal-group.show > *:nth-child(2){
+
+    transition-delay:.20s;
+
+}
+
+.reveal-group.show > *:nth-child(3){
+
+    transition-delay:.30s;
+
+}
+
+.reveal-group.show > *:nth-child(4){
+
+    transition-delay:.40s;
+
+}
+
+.reveal-group.show > *:nth-child(5){
+
+    transition-delay:.50s;
+
+}
+
+.reveal-group.show > *:nth-child(6){
+
+    transition-delay:.60s;
+
+}
