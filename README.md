@@ -1,4 +1,4 @@
-# RYDE platform
+# RYDE Platform
 
 > **Premium chauffeur platform for the Netherlands**
 >
@@ -6,96 +6,144 @@
 
 ---
 
-## Overview
+# Overview
 
-RYDE is a modern, premium chauffeur platform designed to deliver a seamless booking experience for luxury airport transfers, executive travel, and private chauffeur services across the Netherlands.
+RYDE is a premium chauffeur platform based in the Netherlands, focused on delivering exceptional airport transfers, executive travel, and private chauffeur services.
 
-Unlike traditional taxi booking websites, RYDE is being developed as a scalable mobility platform that combines elegant user experience, enterprise-grade architecture, real-time route planning, secure online payments, customer and driver portals, and intelligent automation.
+Version 1 is intentionally simple. The business currently operates with **one professional chauffeur and one executive vehicle**, allowing us to focus on delivering an outstanding customer experience while validating the business model.
 
-The long-term vision is to create one unified platform capable of supporting customers, drivers, corporate clients, hotels, airports, and future mobility partners.
+The platform combines elegant design, seamless booking, secure online payments, Google Maps integration, and automated customer communication to create a premium digital experience.
 
----
-
-# Vision
-
-My goal is simple:
-
-> Build the most premium chauffeur booking platform in the Netherlands.
-
-Every interaction should feel effortless.
-
-Every animation should feel intentional.
-
-Every screen should communicate luxury, simplicity, and trust.
-
-RYDE is inspired by the product quality and design philosophy of companies such as Apple, Stripe, Linear, Uber Black, Porsche, and other premium digital products.
+Although the current operation is small, the software is designed with a scalable architecture that will support multiple vehicles, additional chauffeurs, corporate accounts, and future mobility services as the business grows.
 
 ---
 
-# Core features
+# Mission
 
-## Customer experience
+Our mission is simple:
+
+> **Deliver the finest chauffeur booking experience in the Netherlands.**
+
+RYDE should feel closer to booking a luxury private chauffeur than ordering a taxi.
+
+Every interaction should communicate:
+
+* Trust
+* Luxury
+* Simplicity
+* Professionalism
+* Reliability
+
+Customer experience is always the highest priority.
+
+---
+
+# Current Business
+
+RYDE is currently operating as:
+
+* One premium chauffeur
+* One executive vehicle
+* Based in the Netherlands
+* Airport transfers as the primary service
+* Bookings manually reviewed and confirmed
+* Secure online payments
+* Automated booking confirmations
+
+The current objective is to build a profitable premium chauffeur business while creating a solid technical foundation for future expansion.
+
+---
+
+# Current Features (MVP)
+
+## Customer Experience
 
 * Premium responsive website
 * Luxury booking experience
+* Airport transfer booking
+* Executive travel booking
 * Google Maps integration
-* Live route planning
 * Address autocomplete
-* Live distance & ETA
+* Live route planning
+* Distance and ETA calculation
 * Transparent fare estimation
-* Secure online payments
-* Flight tracking
-* Booking confirmations
-* Customer dashboard
-* Booking history
-* Saved addresses
-* Business invoices
+* Secure Stripe payments
+* Flight number support
+* Booking confirmation emails
+* Contact forms
+* Mobile-first experience
 
 ---
 
-## Driver experience
+## Operations
 
-* Driver dashboard
 * Booking management
+* Manual booking confirmation
+* Customer notifications
+* Pricing management
 * Availability management
-* Navigation support
-* Earnings overview
-* Ride history
-* Customer communication
 
 ---
 
 ## Administration
 
-* Booking management
-* Driver management
-* Fleet management
+* Booking overview
 * Customer management
-* Revenue analytics
-* Business reporting
-* Pricing management
-* Availability management
-* Email management
+* Pricing configuration
+* Availability controls
 
 ---
 
-## Future Features
+# Planned Features
 
-* AI Concierge
-* Dynamic pricing
+Future releases may include:
+
+* Customer dashboard
+* Driver dashboard
+* Fleet management
+* Multiple vehicles
+* Multiple chauffeurs
 * Corporate accounts
 * Hotel integrations
 * Airport integrations
-* Fleet optimization
-* Business analytics
+* AI Concierge
+* Dynamic pricing
 * Loyalty programme
+* Business analytics
 * Mobile applications
 * Multi-language support
 * Multi-country deployment
 
+These features are intentionally deferred until they provide real business value.
+
 ---
 
-# Technology stack
+# Design Philosophy
+
+RYDE is inspired by premium digital products such as:
+
+* Apple
+* Stripe
+* Linear
+* Uber Black
+* Porsche
+
+The interface should always feel:
+
+* Elegant
+* Minimal
+* Premium
+* Fast
+* Spacious
+* Intuitive
+
+Avoid unnecessary complexity.
+
+Every interaction should feel intentional.
+
+---
+
+# Technology Stack
 
 | Layer                 | Technology            |
 | --------------------- | --------------------- |
@@ -117,7 +165,7 @@ RYDE is inspired by the product quality and design philosophy of companies such 
 
 ---
 
-# Repository structure
+# Repository Structure
 
 ```text
 ryde-platform/
@@ -145,7 +193,7 @@ ryde-platform/
 
 ---
 
-# Getting started
+# Getting Started
 
 Clone the repository.
 
@@ -159,13 +207,13 @@ Navigate into the project.
 cd ryde-platform
 ```
 
-Install project dependencies.
+Install dependencies.
 
 ```bash
 npm install
 ```
 
-Start the development server.
+Run the development server.
 
 ```bash
 npm run dev
@@ -173,39 +221,44 @@ npm run dev
 
 Open:
 
-```
+```text
 http://localhost:3000
 ```
 
 ---
 
-# Environment variables
+# Environment Variables
 
-Create a local environment file.
+Create:
 
-```
+```text
 .env.local
 ```
 
-The required variables are documented inside:
+Use the variables documented in:
 
-```
+```text
 .env.example
 ```
 
-Never commit `.env.local` or any API keys to GitHub.
+Never commit:
+
+* `.env.local`
+* API keys
+* Secrets
+* Service credentials
 
 ---
 
-# Project documentation
+# Project Documentation
 
-Detailed documentation is available inside the `/docs` directory.
+Detailed documentation is available in the `/docs` directory.
 
 | Document                   | Purpose                       |
 | -------------------------- | ----------------------------- |
 | 01_PROJECT_OVERVIEW.md     | Product vision and objectives |
-| 02_SETUP.md                | Complete setup guide          |
-| 03_TECH_STACK.md           | Technical architecture        |
+| 02_SETUP.md                | Development setup             |
+| 03_TECH_STACK.md           | Technology stack              |
 | 04_PROJECT_ARCHITECTURE.md | System architecture           |
 | 05_PROJECT_RULES.md        | Development standards         |
 | 06_DESIGN_SYSTEM.md        | Design language               |
@@ -214,74 +267,77 @@ Detailed documentation is available inside the `/docs` directory.
 | 09_BOOKING_SYSTEM.md       | Booking architecture          |
 | 10_GOOGLE_MAPS.md          | Maps integration              |
 | 11_SUPABASE.md             | Database setup                |
-| 12_DATABASE_SCHEMA.md      | Database design               |
+| 12_DATABASE_SCHEMA.md      | Database schema               |
 | 13_STRIPE.md               | Payment integration           |
-| 14_RESEND.md               | Email system                  |
-| 15_API_REFERENCE.md        | APIs and services             |
+| 14_RESEND.md               | Email automation              |
+| 15_API_REFERENCE.md        | APIs                          |
 | 16_DEPLOYMENT.md           | Production deployment         |
 | 17_SECURITY.md             | Security practices            |
 | 18_AI_CONTEXT.md           | AI development guide          |
 
 ---
 
-# Development roadmap
+# Product Roadmap
 
-### Phase 1
+## Phase 1 — Launch MVP
 
-* Foundation
-* Design System
-* Documentation
-
-### Phase 2
-
-* Homepage
-* Booking experience
-
-### Phase 3
-
-* Google maps integration
-
-### Phase 4
-
-* Supabase integration
-
-### Phase 5
-
-* Authentication
-
-### Phase 6
-
+* Premium landing pages
+* Booking flow
+* Google Maps integration
 * Stripe payments
+* Email confirmations
+* SEO optimization
 
-### Phase 7
-
-* Email automation
-
-### Phase 8
-
-* Customer dashboard
-
-### Phase 9
-
-* Driver dashboard
-
-### Phase 10
+## Phase 2 — Operations
 
 * Admin dashboard
+* Booking management
+* Availability management
+* Calendar
 
-### Phase 11
+## Phase 3 — Customer Experience
 
-* AI assistant
+* Customer accounts
+* Booking history
+* Saved addresses
+* Business invoices
 
-### Phase 12
+## Phase 4 — Scale
 
-* Production launch
+* Driver dashboard
+* Multiple chauffeurs
+* Fleet management
+* Advanced scheduling
+
+## Phase 5 — Enterprise
+
+* Corporate accounts
+* Hotel integrations
+* Airport partnerships
+* AI Concierge
+* Mobile applications
+
+---
+
+# Development Principles
+
+RYDE prioritizes:
+
+* Simplicity over complexity
+* Customer experience over unnecessary features
+* Readable code over clever code
+* Reusable components
+* Mobile-first design
+* Accessibility
+* Performance
+* Security
+* Long-term maintainability
+
+Build for today's business while keeping tomorrow's growth in mind.
 
 ---
 
 # Contributing
-
-RYDE follows strict development standards to ensure a clean, maintainable, and scalable codebase.
 
 Before contributing, please read:
 
@@ -289,18 +345,25 @@ Before contributing, please read:
 * `docs/06_DESIGN_SYSTEM.md`
 * `docs/08_COMPONENT_LIBRARY.md`
 
+All contributions should follow the project's coding, design, and architectural standards.
+
 ---
 
 # License
 
-This project is licensed under the MIT License.
+# License
 
-See the `LICENSE` file for details.
+Copyright © 2026 Dakshin Victor John.
 
+This repository contains proprietary software.
+
+The source code may not be copied, modified, distributed, or used without prior written permission from the copyright holder.
 ---
 
-# Long-Term vision
+# Long-Term Vision
 
-RYDE is being built as more than a chauffeur booking website.
+RYDE is more than a booking website.
 
-The objective is to create a premium digital mobility platform capable of supporting luxury transportation, executive travel, airport transfers, corporate mobility, fleet management, and future AI-powered mobility services through a scalable and maintainable software architecture.
+The long-term objective is to build the leading premium chauffeur platform in the Netherlands, capable of supporting customers, chauffeurs, corporate clients, hotels, airports, and future mobility partners through a secure, elegant, and scalable software platform.
+
+We build for today's customers while laying the foundation for tomorrow's growth.

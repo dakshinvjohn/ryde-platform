@@ -354,6 +354,99 @@
 
                         </div>
 
+                        <div class="form-grid-2">
+
+                            <div class="form-row">
+
+                                <label for="fullName">
+                                    <img src="images/icons/users.svg" class="field-icon" alt="">
+                                    Full name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    name="fullName"
+                                    placeholder="Jane Doe"
+                                    autocomplete="name"
+                                    required
+                                >
+
+                            </div>
+
+                            <div class="form-row">
+
+                                <label for="phone">
+                                    <img src="images/icons/clock-3.svg" class="field-icon" alt="">
+                                    Phone
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="+31 6 12345678"
+                                    autocomplete="tel"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <label for="email">
+                                <img src="images/icons/map-pin.svg" class="field-icon" alt="">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="jane@example.com"
+                                autocomplete="email"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <label>
+                                <img src="images/icons/car-taxi-front.svg" class="field-icon" alt="">
+                                Payment
+                            </label>
+
+                            <div class="vehicle-options" id="paymentOptions">
+
+                                <label class="vehicle-option">
+
+                                    <input type="radio" name="paymentMethod" value="now" checked>
+
+                                    <span class="vehicle-card">
+                                        <span class="vehicle-name">Pay now</span>
+                                        <span class="vehicle-desc">Secure card payment via Stripe — charged immediately</span>
+                                    </span>
+
+                                </label>
+
+                                <label class="vehicle-option">
+
+                                    <input type="radio" name="paymentMethod" value="later">
+
+                                    <span class="vehicle-card">
+                                        <span class="vehicle-name">Pay later</span>
+                                        <span class="vehicle-desc">Cash or card with your driver at the end of the trip</span>
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
                         <div class="form-row">
 
                             <label for="notes">
@@ -557,6 +650,9 @@
 
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/supabase-client.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/animations.js"></script>
 <script src="js/counter.js"></script>

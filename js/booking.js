@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let activeRoute = null;
     let liveRoute = null; // real {distanceKm, durationText} from js/maps.js, once available
+    let currentFare = VEHICLES.standard.basePrice;
 
     /* ---------------------------------------
        Prefill date to today, min = today
@@ -151,6 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
             price = vehicle.basePrice;
 
         }
+
+        currentFare = price;
 
         if (summaryVehicle) summaryVehicle.textContent = vehicle.name;
         if (summaryFare) summaryFare.innerHTML = `From €${price}<sup>*</sup>`;
@@ -334,20 +337,137 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDateTime();
 
     /* ---------------------------------------
-       Submit — demo only, no backend yet
+       Returning from Stripe Checkout
+       (success_url / cancel_url land back here)
     --------------------------------------- */
 
-    form.addEventListener("submit", (e) => {
+    const returnParams = new URLSearchParams(window.location.search);
+
+    if (formMessage && returnParams.get("payment") === "success") {
+
+        formMessage.textContent =
+            "Payment received — your booking is confirmed! A confirmation email is on its way.";
+        formMessage.classList.remove("booking-disclaimer--error");
+        formMessage.classList.add("booking-disclaimer--success");
+
+    } else if (formMessage && returnParams.get("payment") === "cancelled") {
+
+        formMessage.textContent =
+            "Payment was cancelled, so nothing was booked. You can try again below.";
+        formMessage.classList.remove("booking-disclaimer--success");
+        formMessage.classList.add("booking-disclaimer--error");
+
+    }
+
+    /* ---------------------------------------
+       Submit — sends the booking to the API.
+       "Pay now" starts a Stripe Checkout redirect;
+       "Pay later" creates the booking directly and
+       emails a confirmation via Resend.
+    --------------------------------------- */
+
+    const submitBtn = form.querySelector(".booking-submit");
+    const defaultSubmitLabel = submitBtn ? submitBtn.textContent.trim() : "Review booking";
+
+    const setLoading = (isLoading, label) => {
+
+        if (!submitBtn) return;
+        submitBtn.disabled = isLoading;
+        submitBtn.textContent = label || defaultSubmitLabel;
+
+    };
+
+    form.addEventListener("submit", async (e) => {
 
         e.preventDefault();
 
         if (!form.reportValidity()) return;
 
+        const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value || "later";
+        const vehicleKey = form.querySelector('input[name="vehicle"]:checked')?.value || "standard";
+
+        const payload = {
+            fullName: document.getElementById("fullName")?.value.trim() || "",
+            email: document.getElementById("email")?.value.trim() || "",
+            phone: document.getElementById("phone")?.value.trim() || "",
+            pickup: pickupInput.value.trim(),
+            destination: destinationInput.value.trim(),
+            date: dateInput.value,
+            time: timeInput.value,
+            passengers: document.getElementById("passengersInput")?.value || "1",
+            luggage: document.getElementById("luggageInput")?.value || "0",
+            vehicle: vehicleKey,
+            vehicleName: VEHICLES[vehicleKey]?.name || vehicleKey,
+            notes: notesInput?.value.trim() || "",
+            fareEur: currentFare,
+            paymentMethod
+        };
+
         if (formMessage) {
 
-            formMessage.textContent =
-                "Request captured. This is a demo — nothing was actually booked yet. Real submission, live pricing and payment are coming in a future update.";
-            formMessage.classList.add("booking-disclaimer--success");
+            formMessage.classList.remove("booking-disclaimer--success", "booking-disclaimer--error");
+
+        }
+
+        try {
+
+            if (paymentMethod === "now") {
+
+                setLoading(true, "Redirecting to secure payment…");
+
+                const res = await fetch("/api/create-checkout-session", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await res.json();
+
+                if (!res.ok || !result.url) throw new Error(result.error || "Couldn't start checkout — please try again.");
+
+                // Leaving the page for Stripe — no need to reset loading state.
+                window.location.href = result.url;
+                return;
+
+            }
+
+            setLoading(true, "Sending your request…");
+
+            const res = await fetch("/api/create-booking", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.error || "Couldn't send your booking request — please try again.");
+
+            if (formMessage) {
+
+                formMessage.textContent =
+                    "Request received! A confirmation email is on its way, and your driver will confirm pickup shortly.";
+                formMessage.classList.add("booking-disclaimer--success");
+
+            }
+
+            form.reset();
+            if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
+            updateFare();
+            updateDateTime();
+
+        } catch (err) {
+
+            if (formMessage) {
+
+                formMessage.textContent = err.message || "Something went wrong — please try again or contact us directly.";
+                formMessage.classList.add("booking-disclaimer--error");
+
+            }
+
+        } finally {
+
+            setLoading(false);
 
         }
 

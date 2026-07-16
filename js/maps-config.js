@@ -21,5 +21,5 @@
 // ==========================================
 
 window.RYDE_CONFIG = {
-    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY"
+    googleMapsApiKey: "AIzaSyB-IwxIrGaZt-rVH_N9aKzrPcIy1H_dUrw"
 };
