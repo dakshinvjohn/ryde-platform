@@ -1,476 +1,144 @@
-// ==========================================
-// RYDE — Booking page
-// Phase 2: booking form + live journey summary.
-// Phase 3: listens for real distance/duration from js/maps.js
-// (Google Maps + Places Autocomplete) and prices from actual route
-// distance when it's available. Falls back to the static route
-// table / flat vehicle price when no Maps API key is configured.
-// ==========================================
+const pickupInput = document.getElementById("pickup");
+const dropoffInput = document.getElementById("dropoff");
+const estimatedFare = document.getElementById("estimatedFare");
+const fareNote = document.getElementById("fareNote");
+const bookingForm = document.getElementById("bookingForm");
+const formMessage = document.getElementById("formMessage");
 
-document.addEventListener("DOMContentLoaded", () => {
+function normalizePlace(value) {
+  return value.trim().toLowerCase();
+}
 
-    const form = document.getElementById("bookingForm");
-    if (!form) return;
+function getRouteEstimate(pickup, dropoff, rideType = "") {
+  const from = normalizePlace(pickup);
+  const to = normalizePlace(dropoff);
+  const type = (rideType || "").toLowerCase();
 
-    /* ---------------------------------------
-       Reference data (mirrors the homepage)
-    --------------------------------------- */
+  const text = `${from} ${to}`;
 
-    const VEHICLES = {
-        standard: { name: "Standard", basePrice: 65 },
-        business: { name: "Business", basePrice: 95 },
-        van: { name: "Van", basePrice: 120 }
+  const isWageningen = text.includes("wageningen");
+  const isEdeStation =
+    text.includes("ede-wageningen") ||
+    text.includes("ede wageningen") ||
+    text.includes("station");
+  const isArnhem = text.includes("arnhem");
+  const isAirport =
+    text.includes("airport") ||
+    text.includes("schiphol") ||
+    text.includes("eindhoven airport") ||
+    text.includes("rotterdam airport");
+
+  if (type === "student-moving") {
+    return {
+      fare: "Affordable quote",
+      note: "Student moving help is quoted based on the amount of items, distance, and help needed."
     };
+  }
 
-    const ROUTES = {
-        schiphol: { destination: "Schiphol Airport", price: 89, duration: "≈1 hr 10 min" },
-        eindhoven: { destination: "Eindhoven Airport", price: 79, duration: "≈1 hr 5 min" },
-        dusseldorf: { destination: "Düsseldorf Airport", price: 99, duration: "≈1 hr 25 min" },
-        weeze: { destination: "Weeze Airport", price: 65, duration: "≈55 min" },
-        brussels: { destination: "Brussels Airport", price: 149, duration: "≈2 hr" },
-        charleroi: { destination: "Brussels South Charleroi Airport", price: 169, duration: "≈2 hr 20 min" }
+  if (type === "group") {
+    return {
+      fare: "Group quote",
+      note: "Group transport up to 15 people is quoted based on group size, timing, and destination."
     };
+  }
 
-    const SERVICES = {
-        airport: { vehicle: "standard", notes: "Airport transfer — happy to share my flight number if it helps with timing." },
-        business: { vehicle: "business", notes: "Business travel booking." },
-        student: { vehicle: "standard", notes: "Student transport booking." },
-        moving: { vehicle: "van", notes: "Moving service — I'll describe what needs moving below so you can send the right vehicle." }
+  if (type === "event" || type === "return-pickup") {
+    return {
+      fare: "Event quote",
+      note: "Concert, nightlife, and return pickups are quoted based on location, timing, and return needs."
     };
+  }
 
-    // Distance-based pricing used once a live route (real km) is
-    // available from Google Maps. The flat "basePrice" above still
-    // applies as a floor, and as the fallback when there's no live
-    // route yet.
-    const PRICING = {
-        standard: { flagFall: 12, perKm: 1.7 },
-        business: { flagFall: 18, perKm: 2.3 },
-        van: { flagFall: 22, perKm: 2.6 }
+  if (type === "international") {
+    return {
+      fare: "Custom quote",
+      note: "International rides and long-distance airport transfers are quoted individually."
     };
+  }
 
-    /* ---------------------------------------
-       Elements
-    --------------------------------------- */
+  if (isWageningen && isEdeStation) {
+    return {
+      fare: "€25",
+      note: "Fixed fare for Wageningen and Ede-Wageningen Station."
+    };
+  }
 
-    const pickupInput = document.getElementById("pickup");
-    const destinationInput = document.getElementById("destination");
-    const dateInput = document.getElementById("date");
-    const timeInput = document.getElementById("time");
-    const notesInput = document.getElementById("notes");
+  if (isWageningen && isArnhem) {
+    return {
+      fare: "€35-€45",
+      note: "Typical fare range for Wageningen and Arnhem."
+    };
+  }
 
-    const summaryPickup = document.getElementById("summaryPickup");
-    const summaryDestination = document.getElementById("summaryDestination");
-    const summaryDistance = document.getElementById("summaryDistance");
-    const summaryDuration = document.getElementById("summaryDuration");
-    const summaryVehicle = document.getElementById("summaryVehicle");
-    const summaryDateTime = document.getElementById("summaryDateTime");
-    const summaryPassengers = document.getElementById("summaryPassengers");
-    const summaryLuggage = document.getElementById("summaryLuggage");
-    const summaryFare = document.getElementById("summaryFare");
-    const formMessage = document.getElementById("bookingFormMessage");
+  if (isAirport || type === "airport") {
+    return {
+      fare: "Best-value quote",
+      note: "Airport rides are handled with cost-effective pricing, especially for students and pre-booked travel."
+    };
+  }
 
-    let activeRoute = null;
-    let liveRoute = null; // real {distanceKm, durationText} from js/maps.js, once available
-    let currentFare = VEHICLES.standard.basePrice;
+  return {
+    fare: "€25 minimum",
+    note: "Local rides start from a €25 minimum fare. Final pricing depends on route details."
+  };
+}
 
-    /* ---------------------------------------
-       Prefill date to today, min = today
-    --------------------------------------- */
+function updateEstimate() {
+  const pickup = pickupInput.value || "";
+  const dropoff = dropoffInput.value || "";
+  const rideType = document.getElementById("rideType")?.value || "";
+  const estimate = getRouteEstimate(pickup, dropoff, rideType);
 
-    if (dateInput) {
+  estimatedFare.textContent = estimate.fare;
+  fareNote.textContent = estimate.note;
+}
 
-        const today = new Date().toISOString().split("T")[0];
-        dateInput.min = today;
-        dateInput.value = today;
+pickupInput.addEventListener("input", updateEstimate);
+dropoffInput.addEventListener("input", updateEstimate);
+document.getElementById("rideType")?.addEventListener("change", updateEstimate);
 
-    }
+bookingForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-    /* ---------------------------------------
-       Steppers (passengers / luggage)
-    --------------------------------------- */
+  formMessage.textContent = "Sending your booking request...";
+  formMessage.style.color = "#0f172a";
 
-    document.querySelectorAll("[data-stepper]").forEach((stepper) => {
+  const formData = new FormData(bookingForm);
+  const payload = Object.fromEntries(formData.entries());
 
-        const key = stepper.getAttribute("data-stepper");
-        const min = parseInt(stepper.getAttribute("data-min"), 10) || 0;
-        const max = parseInt(stepper.getAttribute("data-max"), 10) || 99;
+  const estimate = getRouteEstimate(
+    payload.pickup || "",
+    payload.dropoff || "",
+    payload.rideType || ""
+  );
 
-        const valueEl = stepper.querySelector(".stepper-value");
-        const hiddenInput = document.getElementById(`${key}Input`);
-        const summaryEl = key === "passengers" ? summaryPassengers : summaryLuggage;
+  payload.estimatedFare = estimate.fare;
+  payload.fareNote = estimate.note;
 
-        const setValue = (val) => {
-
-            const clamped = Math.min(max, Math.max(min, val));
-            valueEl.textContent = clamped;
-            if (hiddenInput) hiddenInput.value = clamped;
-            if (summaryEl) summaryEl.textContent = clamped;
-
-        };
-
-        stepper.querySelectorAll(".stepper-btn").forEach((btn) => {
-
-            btn.addEventListener("click", () => {
-
-                const current = parseInt(valueEl.textContent, 10) || 0;
-                const delta = btn.getAttribute("data-action") === "increase" ? 1 : -1;
-                setValue(current + delta);
-
-            });
-
-        });
-
+  try {
+    const response = await fetch("/api/create-booking", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
     });
 
-    /* ---------------------------------------
-       Fare estimate
-    --------------------------------------- */
+    const result = await response.json().catch(() => ({}));
 
-    const updateFare = () => {
-
-        const vehicleKey = form.querySelector('input[name="vehicle"]:checked')?.value || "standard";
-        const vehicle = VEHICLES[vehicleKey];
-
-        let price;
-
-        if (liveRoute) {
-
-            // real distance from Google Maps — price it properly
-            const rate = PRICING[vehicleKey] || PRICING.standard;
-            const metered = rate.flagFall + rate.perKm * liveRoute.distanceKm;
-            price = Math.max(vehicle.basePrice, Math.round(metered / 5) * 5);
-
-        } else if (activeRoute) {
-
-            // scale the route's published standard fare by how much
-            // more the chosen vehicle costs relative to standard
-            const ratio = vehicle.basePrice / VEHICLES.standard.basePrice;
-            price = Math.round((activeRoute.price * ratio) / 5) * 5;
-
-        } else {
-
-            price = vehicle.basePrice;
-
-        }
-
-        currentFare = price;
-
-        if (summaryVehicle) summaryVehicle.textContent = vehicle.name;
-        if (summaryFare) summaryFare.innerHTML = `From €${price}<sup>*</sup>`;
-
-    };
-
-    form.querySelectorAll('input[name="vehicle"]').forEach((radio) => {
-
-        radio.addEventListener("change", updateFare);
-
-    });
-
-    /* ---------------------------------------
-       Live summary — pickup / destination
-    --------------------------------------- */
-
-    if (pickupInput && summaryPickup) {
-
-        pickupInput.addEventListener("input", (e) => {
-
-            summaryPickup.textContent = pickupInput.value.trim() || "Add a pickup location";
-
-            // manual edits invalidate a previously calculated live
-            // route until maps.js confirms a new one — but skip this
-            // when the change came from picking an autocomplete
-            // suggestion, since maps.js is about to recalculate it
-            // anyway and clearing here just causes a price flicker
-            if (liveRoute && !e.detail?.fromAutocomplete) {
-
-                liveRoute = null;
-                if (summaryDistance) summaryDistance.textContent = "—";
-                if (summaryDuration) summaryDuration.textContent = "—";
-                updateFare();
-
-            }
-
-        });
-
+    if (!response.ok) {
+      throw new Error(result.error || "Booking request failed");
     }
 
-    if (destinationInput && summaryDestination) {
-
-        destinationInput.addEventListener("input", (e) => {
-
-            summaryDestination.textContent = destinationInput.value.trim() || "Add a destination";
-
-            // typing a different destination by hand clears the
-            // route-specific duration/fare estimate
-            if (activeRoute && destinationInput.value.trim() !== activeRoute.destination) {
-
-                activeRoute = null;
-                if (summaryDuration) summaryDuration.textContent = "—";
-                updateFare();
-
-            }
-
-            if (liveRoute && !e.detail?.fromAutocomplete) {
-
-                liveRoute = null;
-                if (summaryDistance) summaryDistance.textContent = "—";
-                if (summaryDuration) summaryDuration.textContent = "—";
-                updateFare();
-
-            }
-
-        });
-
-    }
-
-    /* ---------------------------------------
-       Live summary — date & time
-    --------------------------------------- */
-
-    const updateDateTime = () => {
-
-        if (!summaryDateTime) return;
-
-        if (!dateInput.value || !timeInput.value) {
-
-            summaryDateTime.textContent = "Not set";
-            return;
-
-        }
-
-        const dt = new Date(`${dateInput.value}T${timeInput.value}`);
-
-        if (isNaN(dt.getTime())) {
-
-            summaryDateTime.textContent = "Not set";
-            return;
-
-        }
-
-        summaryDateTime.textContent = dt.toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "short",
-            year: "numeric"
-        }) + ", " + dt.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-    };
-
-    [dateInput, timeInput].forEach((el) => {
-
-        if (el) el.addEventListener("change", updateDateTime);
-
-    });
-
-    /* ---------------------------------------
-       Live route data from js/maps.js (Phase 3)
-    --------------------------------------- */
-
-    document.addEventListener("ryde:route-updated", (e) => {
-
-        const { distanceMeters, distanceText, durationText } = e.detail;
-
-        // a real Maps route takes priority over any static route
-        // table match — clear it so the two never disagree
-        activeRoute = null;
-
-        liveRoute = {
-            distanceKm: distanceMeters / 1000,
-            durationText
-        };
-
-        if (summaryDistance) summaryDistance.textContent = distanceText;
-        if (summaryDuration) summaryDuration.textContent = durationText;
-
-        updateFare();
-
-    });
-
-    document.addEventListener("ryde:route-error", () => {
-
-        liveRoute = null;
-        if (summaryDistance) summaryDistance.textContent = "—";
-        if (summaryDuration) summaryDuration.textContent = "—";
-        updateFare();
-
-    });
-
-    /* ---------------------------------------
-       Prefill from homepage links
-       (?route=schiphol or ?service=airport)
-    --------------------------------------- */
-
-    const params = new URLSearchParams(window.location.search);
-    const routeParam = params.get("route");
-    const serviceParam = params.get("service");
-
-    if (routeParam && ROUTES[routeParam]) {
-
-        activeRoute = ROUTES[routeParam];
-
-        if (pickupInput) pickupInput.value = "Wageningen, Gelderland";
-        if (destinationInput) destinationInput.value = activeRoute.destination;
-        if (summaryPickup) summaryPickup.textContent = pickupInput.value;
-        if (summaryDestination) summaryDestination.textContent = activeRoute.destination;
-        if (summaryDuration) summaryDuration.textContent = activeRoute.duration;
-
-    }
-
-    if (serviceParam && SERVICES[serviceParam]) {
-
-        const service = SERVICES[serviceParam];
-
-        const vehicleRadio = form.querySelector(`input[name="vehicle"][value="${service.vehicle}"]`);
-        if (vehicleRadio) vehicleRadio.checked = true;
-
-        if (notesInput && !notesInput.value) notesInput.value = service.notes;
-
-    }
-
-    /* ---------------------------------------
-       Initial paint
-    --------------------------------------- */
-
-    updateFare();
-    updateDateTime();
-
-    /* ---------------------------------------
-       Returning from Stripe Checkout
-       (success_url / cancel_url land back here)
-    --------------------------------------- */
-
-    const returnParams = new URLSearchParams(window.location.search);
-
-    if (formMessage && returnParams.get("payment") === "success") {
-
-        formMessage.textContent =
-            "Payment received — your booking is confirmed! A confirmation email is on its way.";
-        formMessage.classList.remove("booking-disclaimer--error");
-        formMessage.classList.add("booking-disclaimer--success");
-
-    } else if (formMessage && returnParams.get("payment") === "cancelled") {
-
-        formMessage.textContent =
-            "Payment was cancelled, so nothing was booked. You can try again below.";
-        formMessage.classList.remove("booking-disclaimer--success");
-        formMessage.classList.add("booking-disclaimer--error");
-
-    }
-
-    /* ---------------------------------------
-       Submit — sends the booking to the API.
-       "Pay now" starts a Stripe Checkout redirect;
-       "Pay later" creates the booking directly and
-       emails a confirmation via Resend.
-    --------------------------------------- */
-
-    const submitBtn = form.querySelector(".booking-submit");
-    const defaultSubmitLabel = submitBtn ? submitBtn.textContent.trim() : "Review booking";
-
-    const setLoading = (isLoading, label) => {
-
-        if (!submitBtn) return;
-        submitBtn.disabled = isLoading;
-        submitBtn.textContent = label || defaultSubmitLabel;
-
-    };
-
-    form.addEventListener("submit", async (e) => {
-
-        e.preventDefault();
-
-        if (!form.reportValidity()) return;
-
-        const paymentMethod = form.querySelector('input[name="paymentMethod"]:checked')?.value || "later";
-        const vehicleKey = form.querySelector('input[name="vehicle"]:checked')?.value || "standard";
-
-        const payload = {
-            fullName: document.getElementById("fullName")?.value.trim() || "",
-            email: document.getElementById("email")?.value.trim() || "",
-            phone: document.getElementById("phone")?.value.trim() || "",
-            pickup: pickupInput.value.trim(),
-            destination: destinationInput.value.trim(),
-            date: dateInput.value,
-            time: timeInput.value,
-            passengers: document.getElementById("passengersInput")?.value || "1",
-            luggage: document.getElementById("luggageInput")?.value || "0",
-            vehicle: vehicleKey,
-            vehicleName: VEHICLES[vehicleKey]?.name || vehicleKey,
-            notes: notesInput?.value.trim() || "",
-            fareEur: currentFare,
-            paymentMethod
-        };
-
-        if (formMessage) {
-
-            formMessage.classList.remove("booking-disclaimer--success", "booking-disclaimer--error");
-
-        }
-
-        try {
-
-            if (paymentMethod === "now") {
-
-                setLoading(true, "Redirecting to secure payment…");
-
-                const res = await fetch("/api/create-checkout-session", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await res.json();
-
-                if (!res.ok || !result.url) throw new Error(result.error || "Couldn't start checkout — please try again.");
-
-                // Leaving the page for Stripe — no need to reset loading state.
-                window.location.href = result.url;
-                return;
-
-            }
-
-            setLoading(true, "Sending your request…");
-
-            const res = await fetch("/api/create-booking", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await res.json();
-
-            if (!res.ok) throw new Error(result.error || "Couldn't send your booking request — please try again.");
-
-            if (formMessage) {
-
-                formMessage.textContent =
-                    "Request received! A confirmation email is on its way, and your driver will confirm pickup shortly.";
-                formMessage.classList.add("booking-disclaimer--success");
-
-            }
-
-            form.reset();
-            if (dateInput) dateInput.value = new Date().toISOString().split("T")[0];
-            updateFare();
-            updateDateTime();
-
-        } catch (err) {
-
-            if (formMessage) {
-
-                formMessage.textContent = err.message || "Something went wrong — please try again or contact us directly.";
-                formMessage.classList.add("booking-disclaimer--error");
-
-            }
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    });
-
+    formMessage.textContent = "Your booking request has been sent successfully. We’ll get back to you shortly.";
+    formMessage.style.color = "#166534";
+    bookingForm.reset();
+    updateEstimate();
+  } catch (error) {
+    formMessage.textContent = error.message || "Something went wrong while sending your booking. Please try again.";
+    formMessage.style.color = "#b91c1c";
+    console.error(error);
+  }
 });
+
+updateEstimate();

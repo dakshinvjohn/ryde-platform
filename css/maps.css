@@ -59,6 +59,15 @@
 
 }
 
+.booking-map-hint{
+
+    margin:10px 0 0;
+    font-size:.78rem;
+    color:var(--slate);
+    opacity:.85;
+
+}
+
 @media (max-width:720px){
 
     .booking-map{

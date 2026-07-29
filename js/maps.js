@@ -46,6 +46,7 @@
     // route estimates in booking.js.
     if (!API_KEY || API_KEY === "YOUR_GOOGLE_MAPS_API_KEY") {
 
+        console.warn("RYDE Maps: no API key configured in js/maps-config.js — skipping live map.");
         showStatus("Live map coming soon — add a Google Maps API key in js/maps-config.js to enable it.");
         return;
 
@@ -56,6 +57,12 @@
     // still loads fine, so script.onerror never fires for this case.
     window.gm_authFailure = function () {
 
+        console.error(
+            "RYDE Maps: gm_authFailure — the API key loaded but Google rejected it. " +
+            "Common causes: (1) the key's HTTP referrer restriction doesn't include this exact domain, " +
+            "(2) Maps JavaScript API / Places API / Directions API / Geocoding API aren't all enabled " +
+            "for this key's project in Google Cloud Console, or (3) billing isn't enabled on that project."
+        );
         showStatus("Live map couldn't authenticate — check that the API key in js/maps-config.js is valid, unrestricted for this domain, and has billing enabled.");
 
     };
@@ -75,11 +82,31 @@
     let autocompletePickup, autocompleteDestination;
     let pickupPlace = null;
     let destinationPlace = null;
+    let pickupMarker, destinationMarker;
+
+    // Which pin the next map click / the next placed marker should
+    // set. Cycles pickup -> destination -> pickup so clicking the
+    // map repeatedly lets you set (and re-set) both.
+    let nextClickTarget = "pickup";
 
     const AUTOCOMPLETE_OPTIONS = {
         componentRestrictions: { country: ["nl", "de", "be"] },
         fields: ["formatted_address", "geometry", "name"]
     };
+
+    function markerIcon(color) {
+
+        return {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: color,
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+            labelOrigin: new google.maps.Point(0, 0)
+        };
+
+    }
 
     function panToSinglePoint() {
 
@@ -134,6 +161,57 @@
 
     }
 
+    // Single source of truth for "a place got chosen for pickup or
+    // destination" — called from Places Autocomplete, the typed-address
+    // geocode fallback, and map clicks/marker drags, so all three
+    // paths stay in sync (input text, marker position, route calc).
+    function setPlace(target, place, options = {}) {
+
+        const isPickup = target === "pickup";
+        const input = isPickup ? pickupInput : destinationInput;
+        const marker = isPickup ? pickupMarker : destinationMarker;
+
+        if (isPickup) pickupPlace = place; else destinationPlace = place;
+
+        if (!options.skipInputUpdate) {
+            input.value = place.formatted_address || place.name || input.value;
+        }
+
+        marker.setPosition(place.geometry.location);
+        marker.setVisible(true);
+
+        // once a pin is set by click/drag, the next click sets the
+        // other one — unless both are already set, in which case
+        // stay put so a second click on the same side re-adjusts it
+        if (nextClickTarget === target) {
+            nextClickTarget = isPickup ? "destination" : "pickup";
+        }
+
+        calculateRoute();
+
+    }
+
+    function reverseGeocode(latLng, target) {
+
+        if (!geocoder) geocoder = new google.maps.Geocoder();
+
+        showStatus("Finding that address…");
+
+        geocoder.geocode({ location: latLng }, (results, status) => {
+
+            if (status !== "OK" || !results[0]) {
+
+                showStatus("Couldn't find an address at that spot — try clicking closer to a road.");
+                return;
+
+            }
+
+            setPlace(target, { geometry: { location: latLng }, formatted_address: results[0].formatted_address });
+
+        });
+
+    }
+
     // Best-effort geocode for addresses typed by hand (or prefilled
     // via URL params) and not picked from the autocomplete dropdown,
     // so the map/fare still update instead of silently staying stale.
@@ -148,14 +226,10 @@
 
             if (status !== "OK" || !results[0]) return;
 
-            const place = {
+            setPlace(isPickup ? "pickup" : "destination", {
                 geometry: results[0].geometry,
                 formatted_address: results[0].formatted_address
-            };
-
-            if (isPickup) pickupPlace = place; else destinationPlace = place;
-
-            calculateRoute();
+            }, { skipInputUpdate: true }); // keep exactly what the person typed in the field
 
         });
 
@@ -186,6 +260,8 @@
 
     window.initRydeMap = function () {
 
+        console.log("RYDE Maps: script loaded OK, initializing map.");
+
         const centre = { lat: 51.9692, lng: 5.6669 }; // Wageningen, NL
 
         map = new google.maps.Map(mapEl, {
@@ -199,7 +275,7 @@
         directionsService = new google.maps.DirectionsService();
         directionsRenderer = new google.maps.DirectionsRenderer({
             map,
-            suppressMarkers: false,
+            suppressMarkers: true, // we render our own draggable pickup/destination pins instead
             polylineOptions: {
                 strokeColor: "#8B7FD1",
                 strokeWeight: 5,
@@ -207,24 +283,57 @@
             }
         });
 
+        pickupMarker = new google.maps.Marker({
+            map,
+            visible: false,
+            draggable: true,
+            icon: markerIcon("#4CAF50"),
+            label: { text: "A", color: "#ffffff", fontSize: "12px", fontWeight: "700" },
+            title: "Pickup — drag to fine-tune"
+        });
+
+        destinationMarker = new google.maps.Marker({
+            map,
+            visible: false,
+            draggable: true,
+            icon: markerIcon("#8B7FD1"),
+            label: { text: "B", color: "#ffffff", fontSize: "12px", fontWeight: "700" },
+            title: "Destination — drag to fine-tune"
+        });
+
+        pickupMarker.addListener("dragend", () => reverseGeocode(pickupMarker.getPosition(), "pickup"));
+        destinationMarker.addListener("dragend", () => reverseGeocode(destinationMarker.getPosition(), "destination"));
+
+        // Click anywhere on the map to drop a pin — fills whichever
+        // of pickup/destination is next in line (see nextClickTarget).
+        map.addListener("click", (e) => {
+
+            reverseGeocode(e.latLng, nextClickTarget);
+
+        });
+
         autocompletePickup = new google.maps.places.Autocomplete(pickupInput, AUTOCOMPLETE_OPTIONS);
         autocompleteDestination = new google.maps.places.Autocomplete(destinationInput, AUTOCOMPLETE_OPTIONS);
 
         autocompletePickup.addListener("place_changed", () => {
 
-            pickupPlace = autocompletePickup.getPlace();
+            const place = autocompletePickup.getPlace();
+            if (!place.geometry) return; // person hit Enter without picking a suggestion
+
             pickupJustSelected = true;
+            setPlace("pickup", place, { skipInputUpdate: true }); // Autocomplete already wrote its own text into the field
             pickupInput.dispatchEvent(new CustomEvent("input", { bubbles: true, detail: { fromAutocomplete: true } }));
-            calculateRoute();
 
         });
 
         autocompleteDestination.addListener("place_changed", () => {
 
-            destinationPlace = autocompleteDestination.getPlace();
+            const place = autocompleteDestination.getPlace();
+            if (!place.geometry) return;
+
             destinationJustSelected = true;
+            setPlace("destination", place, { skipInputUpdate: true });
             destinationInput.dispatchEvent(new CustomEvent("input", { bubbles: true, detail: { fromAutocomplete: true } }));
-            calculateRoute();
 
         });
 
@@ -263,7 +372,10 @@
     script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(API_KEY)}&libraries=places&callback=initRydeMap&loading=async`;
     script.async = true;
     script.defer = true;
-    script.onerror = () => showStatus("Live map couldn't load — check the API key and your connection. Estimates below still work.");
+    script.onerror = () => {
+        console.error("RYDE Maps: the Google Maps script tag itself failed to load (network/ad-blocker/CSP) — this is different from an auth failure, which loads fine but calls gm_authFailure instead.");
+        showStatus("Live map couldn't load — check the API key and your connection. Estimates below still work.");
+    };
     document.head.appendChild(script);
 
 })();
