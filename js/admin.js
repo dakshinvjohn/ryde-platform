@@ -104,13 +104,15 @@ document.addEventListener("DOMContentLoaded", () => {
        Data loading
     --------------------------------------- */
 
-    const authedFetch = (url, options = {}) => fetch(url, {
-        ...options,
-        headers: {
-            ...(options.headers || {}),
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+const authedFetch = (url, options = {}) => fetch(url, {
+  ...options,
+  cache: "no-store",
+  headers: {
+    ...(options.headers || {}),
+    Authorization: `Bearer ${getToken()}`,
+    "Cache-Control": "no-cache"
+  }
+});
 
     const eur = (n) => `€${Math.round(Number(n) || 0).toLocaleString("en-NL")}`;
 
@@ -242,11 +244,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
 
-            const res = await authedFetch("/api/admin-update-booking", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, paymentStatus: nextStatus })
-            });
+const res = await fetch("/api/admin-login", {
+  method: "POST",
+  cache: "no-store",
+  headers: {
+    "Content-Type": "application/json",
+    "Cache-Control": "no-cache"
+  },
+  body: JSON.stringify({password: passwordInput.value})
+});
 
             if (res.status === 401) { showLogin("Your session expired. Please log in again."); return; }
 
