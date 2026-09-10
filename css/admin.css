@@ -1,0 +1,445 @@
+/* ==========================================
+   ADMIN — shared base
+========================================== */
+
+*{ box-sizing:border-box; }
+
+body{
+
+    margin:0;
+    background:var(--mist);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+
+}
+
+.admin-logo{
+
+    font-family:var(--font-display);
+    font-size:1.3rem;
+    font-weight:600;
+    color:var(--ink);
+    text-decoration:none;
+
+}
+
+.admin-logo span{ color:var(--lavender); }
+
+/* ==========================================
+   LOGIN SCREEN
+========================================== */
+
+.admin-login-screen{
+
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+
+}
+
+.admin-login-card{
+
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+
+    width:100%;
+    max-width:340px;
+    padding:36px 32px;
+
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-md);
+
+}
+
+.admin-login-tag{
+
+    margin:0 0 8px;
+    font-family:var(--font-mono);
+    font-size:.78rem;
+    color:var(--slate-dim);
+
+}
+
+.admin-login-card label{
+
+    font-size:.86rem;
+    font-weight:600;
+    color:var(--ink);
+
+}
+
+.admin-login-card input{
+
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    font-family:var(--font-body);
+    font-size:.95rem;
+    color:var(--ink);
+    background:var(--mist);
+
+}
+
+.admin-login-card input:focus{
+
+    outline:2px solid var(--lavender);
+    outline-offset:1px;
+
+}
+
+.admin-login-card .btn{
+
+    justify-content:center;
+    margin-top:6px;
+
+}
+
+.admin-login-error{
+
+    margin:0;
+    font-size:.85rem;
+    color:#B3261E;
+
+}
+
+/* ==========================================
+   BUTTONS (small local copy so admin.html
+   doesn't have to pull in the whole site CSS)
+========================================== */
+
+.btn{
+
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    justify-content:center;
+
+    padding:11px 20px;
+    border-radius:var(--radius-sm);
+    border:1px solid transparent;
+
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:.88rem;
+    cursor:pointer;
+    transition:all var(--transition);
+
+}
+
+.btn-primary{ background:var(--lavender); color:var(--ink); }
+.btn-primary:hover{ background:var(--lavender-light); }
+.btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
+
+.btn-secondary{ border:1px solid var(--line); color:var(--ink); background:var(--white); }
+.btn-secondary:hover{ border-color:var(--lavender); color:var(--lavender-dark); }
+
+/* ==========================================
+   TOP BAR
+========================================== */
+
+.admin-topbar{
+
+    display:flex;
+    align-items:center;
+    gap:20px;
+
+    padding:16px clamp(20px,4vw,40px);
+
+    background:var(--white);
+    border-bottom:1px solid var(--line);
+
+}
+
+.admin-topbar-title{
+
+    font-size:.86rem;
+    color:var(--slate);
+
+}
+
+.admin-topbar-actions{
+
+    display:flex;
+    gap:10px;
+    margin-left:auto;
+
+}
+
+/* ==========================================
+   MAIN LAYOUT
+========================================== */
+
+.admin-main{
+
+    max-width:1240px;
+    margin:0 auto;
+    padding:clamp(20px,4vw,40px);
+
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+
+}
+
+.admin-error{
+
+    margin:0;
+    padding:14px 18px;
+    background:#FDECEA;
+    border:1px solid #F3B8B2;
+    border-radius:var(--radius-sm);
+    color:#B3261E;
+    font-size:.88rem;
+
+}
+
+/* ==========================================
+   KPI CARDS
+========================================== */
+
+.admin-kpi-grid{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+
+}
+
+.admin-kpi-card{
+
+    padding:18px 20px;
+
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+
+}
+
+.admin-kpi-label{
+
+    margin:0 0 6px;
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    color:var(--slate-dim);
+
+}
+
+.admin-kpi-value{
+
+    margin:0;
+    font-family:var(--font-display);
+    font-size:1.7rem;
+    font-weight:600;
+    color:var(--ink);
+
+}
+
+.admin-kpi-sub{
+
+    margin:4px 0 0;
+    font-size:.78rem;
+    color:var(--slate);
+
+}
+
+/* ==========================================
+   PANELS
+========================================== */
+
+.admin-panel{
+
+    padding:22px clamp(18px,3vw,26px);
+
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+
+}
+
+.admin-panel h2{
+
+    margin:0 0 16px;
+    font-family:var(--font-display);
+    font-size:1.15rem;
+    font-weight:600;
+
+}
+
+/* ==========================================
+   CHART
+========================================== */
+
+.admin-chart{
+
+    display:flex;
+    align-items:flex-end;
+    gap:6px;
+    height:140px;
+
+}
+
+.admin-chart-bar{
+
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    gap:6px;
+    height:100%;
+
+}
+
+.admin-chart-bar-fill{
+
+    width:100%;
+    max-width:28px;
+
+    background:var(--lavender);
+    border-radius:4px 4px 0 0;
+
+    transition:background var(--transition);
+
+}
+
+.admin-chart-bar:hover .admin-chart-bar-fill{ background:var(--lavender-dark); }
+
+.admin-chart-bar-label{
+
+    font-family:var(--font-mono);
+    font-size:.62rem;
+    color:var(--slate-dim);
+    white-space:nowrap;
+
+}
+
+/* ==========================================
+   TABLE
+========================================== */
+
+.admin-table-controls{
+
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+
+    margin-bottom:16px;
+
+}
+
+.admin-table-filters{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+
+}
+
+.admin-table-filters input,
+.admin-table-filters select{
+
+    padding:9px 12px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    background:var(--mist);
+    font-family:var(--font-body);
+    font-size:.85rem;
+    color:var(--ink);
+
+}
+
+.admin-table-filters input{ min-width:220px; }
+
+.admin-table-wrap{ overflow-x:auto; }
+
+.admin-table{
+
+    width:100%;
+    border-collapse:collapse;
+    font-size:.86rem;
+
+}
+
+.admin-table th{
+
+    text-align:left;
+    padding:10px 12px;
+
+    font-family:var(--font-mono);
+    font-size:.68rem;
+    color:var(--slate-dim);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+
+}
+
+.admin-table td{
+
+    padding:12px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+
+}
+
+.admin-table tr:last-child td{ border-bottom:none; }
+
+.admin-table-name{ font-weight:600; color:var(--ink); }
+.admin-table-sub{ display:block; margin-top:2px; font-size:.78rem; color:var(--slate); }
+
+.admin-status-pill{
+
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+
+    padding:4px 10px;
+    border-radius:99px;
+
+    font-size:.76rem;
+    font-weight:600;
+
+}
+
+.admin-status-pill.is-paid{ background:#E6F4EA; color:#1E7B34; }
+.admin-status-pill.is-unpaid{ background:#FDF0DC; color:#9A6400; }
+
+.admin-status-toggle{
+
+    padding:6px 12px;
+    border-radius:var(--radius-sm);
+    border:1px solid var(--line);
+    background:transparent;
+    font-size:.78rem;
+    font-weight:600;
+    color:var(--slate);
+    cursor:pointer;
+    transition:all var(--transition);
+
+}
+
+.admin-status-toggle:hover{ border-color:var(--lavender); color:var(--lavender-dark); }
+.admin-status-toggle:disabled{ opacity:.5; cursor:wait; }
+
+.admin-table-empty{
+
+    margin:20px 0 0;
+    text-align:center;
+    color:var(--slate);
+    font-size:.88rem;
+
+}
+
+@media (max-width:640px){
+
+    .admin-topbar-title{ display:none; }
+    .admin-table-filters input{ min-width:0; flex:1; }
+
+}

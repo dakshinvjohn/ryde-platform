@@ -1,0 +1,40 @@
+/* ==========================================
+   CTA
+========================================== */
+
+.cta{
+
+    padding:clamp(70px,9vw,110px) 0;
+    background:var(--lavender);
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+
+}
+
+.cta::before{
+
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.35), rgba(255,255,255,0) 60%);
+    pointer-events:none;
+
+}
+
+.cta h2{
+
+    color:var(--ink);
+    margin-bottom:18px;
+    position:relative;
+
+}
+
+.cta p{
+
+    color:var(--ink);
+    opacity:.75;
+    margin-bottom:36px;
+    position:relative;
+
+}

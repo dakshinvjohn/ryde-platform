@@ -1,0 +1,108 @@
+/* ==========================================
+   SERVICES
+========================================== */
+
+.services{
+
+    padding:clamp(80px,10vw,140px) 0;
+    background:var(--paper);
+
+}
+
+.section-heading{
+
+    max-width:700px;
+    margin:0 0 72px;
+
+}
+
+.section-heading.centered{
+
+    text-align:center;
+    margin:0 auto 72px;
+
+}
+
+.services-grid{
+
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+
+}
+
+/* ==========================================
+   SERVICE CARD
+========================================== */
+
+.service-card{
+
+    background:var(--white);
+    padding:44px;
+    transition:background var(--transition);
+
+}
+
+.service-card:hover{
+
+    background:var(--mist);
+
+}
+
+.service-icon{
+
+    width:52px;
+    height:52px;
+    border-radius:var(--radius-sm);
+    background:var(--ink);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:28px;
+
+}
+
+.service-icon img{
+
+    width:22px;
+    height:22px;
+    filter:invert(100%) brightness(200%);
+
+}
+
+.service-card h3{
+
+    margin-bottom:14px;
+    font-size:1.3rem;
+    font-weight:500;
+
+}
+
+.service-card p{
+
+    margin-bottom:26px;
+    line-height:1.75;
+    font-size:.98rem;
+
+}
+
+.service-card a{
+
+    color:var(--lavender-dark);
+    font-weight:600;
+    font-size:.92rem;
+    transition:all var(--transition);
+    border-bottom:1px solid transparent;
+
+}
+
+.service-card a:hover{
+
+    border-bottom-color:var(--lavender-dark);
+
+}

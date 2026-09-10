@@ -1,0 +1,62 @@
+// ==========================================
+// RYDE - Active Navigation
+// ==========================================
+
+const sections = document.querySelectorAll("main section[id]");
+
+const activeDesktopLinks = document.querySelectorAll(".nav-links a");
+const activeMobileNavLinks = document.querySelectorAll(".mobile-links a");
+
+const observerOptions = {
+
+    rootMargin: "-45% 0px -45% 0px",
+
+    threshold: 0
+
+};
+
+const sectionObserver = new IntersectionObserver((entries) => {
+
+    entries.forEach(entry => {
+
+        if (!entry.isIntersecting) return;
+
+        const currentId = entry.target.id;
+
+        // Desktop navigation
+
+        activeDesktopLinks.forEach(link => {
+
+            link.classList.remove("active");
+
+            if (link.getAttribute("href") === `#${currentId}`) {
+
+                link.classList.add("active");
+
+            }
+
+        });
+
+        // Mobile navigation
+
+        activeMobileNavLinks.forEach(link => {
+
+            link.classList.remove("active");
+
+            if (link.getAttribute("href") === `#${currentId}`) {
+
+                link.classList.add("active");
+
+            }
+
+        });
+
+    });
+
+}, observerOptions);
+
+sections.forEach(section => {
+
+    sectionObserver.observe(section);
+
+});

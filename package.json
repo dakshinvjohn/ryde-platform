@@ -1,0 +1,11 @@
+{
+  "name": "ryde-platform",
+  "private": true,
+  "version": "1.0.0",
+  "description": "RYDE — static site + Vercel serverless functions for Stripe payments and Resend email",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "resend": "^4.0.1",
+    "stripe": "^17.3.1"
+  }
+}

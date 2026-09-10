@@ -1,0 +1,68 @@
+/* ==========================================
+   TRUST BAR — light
+========================================== */
+
+.trust{
+
+    padding:44px 0;
+    background:var(--white);
+    border-bottom:1px solid var(--line);
+
+}
+
+.trust-grid{
+
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:32px;
+
+}
+
+.trust-item{
+
+    display:flex;
+    align-items:center;
+    gap:16px;
+
+}
+
+.trust-icon{
+
+    width:46px;
+    height:46px;
+    border-radius:var(--radius-sm);
+    background:rgba(139,127,209,.1);
+    border:1px solid rgba(139,127,209,.22);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-shrink:0;
+
+}
+
+.trust-icon img{
+
+    width:20px;
+    height:20px;
+    filter:invert(46%) sepia(37%) saturate(1400%) hue-rotate(216deg) brightness(93%) contrast(92%);
+
+}
+
+.trust-item h3{
+
+    font-family:var(--font-body);
+    font-size:.98rem;
+    font-weight:700;
+    margin-bottom:3px;
+    color:var(--plum);
+
+}
+
+.trust-item p{
+
+    font-size:.86rem;
+    margin:0;
+    color:var(--slate);
+
+}

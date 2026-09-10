@@ -1,0 +1,228 @@
+/* ==========================================
+   COVERAGE — Nationwide network (signature section)
+========================================== */
+
+.coverage{
+
+    padding:clamp(80px,10vw,140px) 0;
+    background:var(--ink);
+    color:var(--mist);
+    position:relative;
+    overflow:hidden;
+
+}
+
+.coverage .section-tag,
+.coverage .eyebrow{
+
+    color:var(--lavender-light);
+
+}
+
+.coverage .section-title{
+
+    color:var(--mist);
+
+}
+
+.coverage .section-text{
+
+    color:var(--slate-dim);
+
+}
+
+.coverage-grid{
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:64px;
+    align-items:center;
+    margin-top:56px;
+
+}
+
+/* ---- Map ---- */
+
+.coverage-map{
+
+    position:relative;
+
+}
+
+.coverage-map svg{
+
+    width:100%;
+    height:auto;
+    display:block;
+
+}
+
+.nl-outline{
+
+    fill:rgba(246,242,234,.03);
+    stroke:var(--line-dark);
+    stroke-width:1.4;
+
+}
+
+.route-line{
+
+    fill:none;
+    stroke:var(--slate-dim);
+    stroke-width:1;
+    opacity:.55;
+
+}
+
+.route-line.hub{
+
+    stroke:var(--lavender);
+    opacity:.85;
+    stroke-width:1.4;
+
+}
+
+.city-dot{
+
+    fill:var(--slate-dim);
+    stroke:var(--ink);
+    stroke-width:2;
+
+}
+
+.city-dot.gelderland{
+
+    fill:var(--lavender-light);
+
+}
+
+.city-dot.hq{
+
+    fill:var(--lavender);
+}
+
+.hq-ring{
+
+    fill:none;
+    stroke:var(--lavender);
+    stroke-width:1;
+    opacity:.6;
+    animation:pulse-ring 2.6s ease-out infinite;
+    transform-origin:center;
+}
+
+@keyframes pulse-ring{
+    0%{ transform:scale(.6); opacity:.7; }
+    100%{ transform:scale(2.6); opacity:0; }
+}
+
+.city-label{
+
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    fill:var(--slate-dim);
+    letter-spacing:.02em;
+
+}
+
+.city-label.gelderland{
+
+    fill:var(--mist);
+    font-weight:600;
+
+}
+
+.city-label.hq{
+
+    fill:var(--lavender-light);
+    font-weight:600;
+
+}
+
+/* ---- Text / stats side ---- */
+
+.coverage-copy p{
+
+    margin-bottom:32px;
+    max-width:480px;
+
+}
+
+.coverage-homebase{
+
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    font-family:var(--font-mono);
+    font-size:.8rem;
+    letter-spacing:.03em;
+    color:var(--lavender-light);
+
+    padding:10px 18px;
+    border:1px solid var(--line-dark);
+    border-radius:999px;
+
+    margin-bottom:28px;
+
+}
+
+.coverage-homebase .dot{
+
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--lavender);
+    flex-shrink:0;
+
+}
+
+.coverage-provinces{
+
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:40px;
+    list-style:none;
+
+}
+
+.coverage-provinces li{
+
+    font-family:var(--font-mono);
+    font-size:.76rem;
+    letter-spacing:.04em;
+    padding:9px 16px;
+    border:1px solid var(--line-dark);
+    border-radius:999px;
+    color:var(--slate-dim);
+
+}
+
+.coverage-stats{
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    border-top:1px solid var(--line-dark);
+    padding-top:32px;
+
+}
+
+.coverage-stat .num{
+
+    font-family:var(--font-display);
+    font-size:2.2rem;
+    color:var(--lavender-light);
+    display:block;
+    margin-bottom:6px;
+    font-variant-numeric:tabular-nums;
+
+}
+
+.coverage-stat .label{
+
+    font-size:.82rem;
+    color:var(--slate-dim);
+
+}

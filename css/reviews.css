@@ -1,0 +1,262 @@
+/* ==========================================
+   REVIEWS
+========================================== */
+
+.reviews{
+
+    background:#FAFBFC;
+
+    overflow:hidden;
+
+}
+
+.review-summary{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    gap:.8rem;
+
+    margin:2rem 0 4rem;
+
+}
+
+.summary-stars{
+
+    color:#F5B301;
+
+    font-size:1.3rem;
+
+    letter-spacing:3px;
+
+}
+
+.review-score{
+
+    color:#111827;
+
+    font-size:1.35rem;
+
+    font-weight:700;
+
+}
+
+.review-summary p{
+
+    width:100%;
+
+    text-align:center;
+
+    color:#6B7280;
+
+    font-size:.95rem;
+
+    margin-top:.3rem;
+
+}
+.review-badge{
+
+    background:#EEF2FF;
+
+    color:var(--lavender);
+
+    font-size:.8rem;
+
+    font-weight:600;
+
+    padding:.45rem .8rem;
+
+    border-radius:999px;
+
+}
+/* ==========================================
+   SLIDER
+========================================== */
+
+.reviews-slider{
+
+    position:relative;
+
+    overflow:hidden;
+
+    width:100%;
+
+}
+
+/* Edge fade */
+
+.reviews-slider::before,
+.reviews-slider::after{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+
+    width:120px;
+
+    height:100%;
+
+    z-index:5;
+
+    pointer-events:none;
+
+}
+
+.reviews-slider::before{
+
+    left:0;
+
+    background:linear-gradient(
+        to right,
+        #FAFBFC 0%,
+        rgba(250,251,252,0) 100%
+    );
+
+}
+
+.reviews-slider::after{
+
+    right:0;
+
+    background:linear-gradient(
+        to left,
+        #FAFBFC 0%,
+        rgba(250,251,252,0) 100%
+    );
+
+}
+
+/* ==========================================
+   TRACK
+========================================== */
+
+.reviews-track{
+
+    display:flex;
+
+    gap:2rem;
+
+    width:max-content;
+
+    animation:reviewsScroll 90s linear infinite;
+
+}
+
+.reviews-track:hover{
+
+    animation-play-state:paused;
+
+}
+
+/* ==========================================
+   REVIEW CARD
+========================================== */
+
+.review-card{
+
+    width:360px;
+
+    flex-shrink:0;
+
+    background:#fff;
+
+    border:none;
+
+    border-radius:24px;
+
+    padding:2rem;
+
+    box-shadow:
+
+        0 12px 40px rgba(15,23,42,.06);
+
+    transition:
+
+        transform .35s ease,
+
+        box-shadow .35s ease;
+
+}
+
+.review-card:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:
+
+        0 28px 60px rgba(15,23,42,.12);
+
+}
+
+.stars{
+
+    color:#F5B301;
+
+    font-size:1.15rem;
+
+    letter-spacing:2px;
+
+    margin-bottom:1rem;
+
+}
+
+.review-card p{
+
+    color:#111827;
+
+    font-size:1rem;
+
+    line-height:1.85;
+
+    margin-bottom:2rem;
+
+}
+
+.review-card h4{
+
+    color:#111827;
+
+    font-size:1.05rem;
+
+    font-weight:700;
+
+    margin-bottom:.35rem;
+
+}
+
+.review-location{
+
+    display:block;
+
+    color:#6B7280;
+
+    font-size:.92rem;
+
+}
+
+/* ==========================================
+   AUTO SCROLL
+========================================== */
+
+@keyframes reviewsScroll{
+
+    from{
+
+        transform:translateX(0);
+
+    }
+
+    to{
+
+        transform:translateX(-50%);
+
+    }
+
+}

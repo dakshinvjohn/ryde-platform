@@ -1,0 +1,226 @@
+/* ==========================================
+   RESET
+========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   GLOBAL
+========================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.container {
+    width: min(92%, var(--container));
+    margin-inline: auto;
+}
+
+/* ==========================================
+   SECTION SPACING
+========================================== */
+
+section {
+    padding: clamp(64px, 9vw, 120px) 0;
+}
+
+/* ==========================================
+   TYPOGRAPHY
+========================================== */
+
+h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+}
+
+h1 {
+    font-size: clamp(2.6rem, 5.6vw, 4.6rem);
+    line-height: 1.05;
+    font-weight: 500;
+}
+
+h2 {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    line-height: 1.12;
+}
+
+h3 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+}
+
+p {
+    color: var(--slate);
+    line-height: 1.7;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    width: 100%;
+    display: block;
+}
+
+/* Accessible focus states */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--lavender);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
+/* ==========================================
+   REUSABLE TEXT
+========================================== */
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: .74rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--lavender-dark);
+    margin-bottom: 20px;
+}
+
+.eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--lavender);
+    display: inline-block;
+}
+
+/* legacy alias kept so old markup with .section-tag still styles correctly */
+.section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: .74rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--lavender-dark);
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: 500;
+}
+
+.section-tag::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--lavender);
+    display: inline-block;
+}
+
+.section-title {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 20px;
+}
+
+.section-text {
+    font-size: 1.08rem;
+    max-width: 620px;
+    color: var(--slate);
+}
+
+.section-heading.centered {
+    text-align: center;
+    margin-inline: auto;
+}
+
+.section-heading.centered .section-text {
+    margin-inline: auto;
+}
+
+/* ==========================================
+   GRID
+========================================== */
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 64px;
+    align-items: center;
+}
+
+/* ==========================================
+   SCROLL REVEAL
+========================================== */
+
+.reveal{
+
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+    will-change:opacity, transform;
+
+}
+
+.reveal.is-visible{
+
+    opacity:1;
+    transform:translateY(0);
+
+}
+
+.reveal-group .reveal:nth-child(2){ transition-delay:.08s; }
+.reveal-group .reveal:nth-child(3){ transition-delay:.16s; }
+.reveal-group .reveal:nth-child(4){ transition-delay:.24s; }
+.reveal-group .reveal:nth-child(5){ transition-delay:.32s; }
+.reveal-group .reveal:nth-child(6){ transition-delay:.4s; }
+
+@media (prefers-reduced-motion: reduce){
+
+    .reveal{
+        opacity:1 !important;
+        transform:none !important;
+        transition:none !important;
+    }
+
+}

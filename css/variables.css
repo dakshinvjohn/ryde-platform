@@ -1,0 +1,70 @@
+/* ==========================================
+   RYDE DESIGN SYSTEM
+   Lavender & plum — light, premium, tech-forward
+========================================== */
+
+:root{
+
+    /* Brand Colors */
+
+    --lavender:#8B7FD1;
+    --lavender-light:#B9AEE8;
+    --lavender-dark:#6952B3;
+
+    --plum:#241F36;             /* deep plum-black — text + a couple of anchor sections */
+    --plum-soft:#332B4A;
+
+    --white:#FFFFFF;
+    --mist:#F4F1FB;             /* soft lavender-tinted off-white */
+    --paper:#FFFFFF;
+
+    --slate:#6E6780;            /* body copy on light backgrounds */
+    --slate-dim:#A79FBF;        /* secondary copy on dark plum sections */
+
+    --line:rgba(36,31,54,.08);
+    --line-dark:rgba(244,241,251,.14);
+
+    /* legacy aliases so nothing silently resolves to nothing */
+    --primary:var(--lavender);
+    --primary-dark:var(--lavender-dark);
+    --secondary:var(--plum);
+    --grey:var(--slate);
+    --ink:var(--plum);
+    --ink-soft:var(--plum-soft);
+    --cream:var(--mist);
+    --ivory:var(--mist);
+    --light:var(--mist);
+    --black:var(--plum);
+    --teal:var(--lavender);
+    --teal-light:var(--lavender-light);
+    --teal-dark:var(--lavender-dark);
+    --copper:var(--lavender);
+    --copper-light:var(--lavender-light);
+    --copper-dark:var(--lavender-dark);
+
+    /* Typography */
+
+    --font-display:'Fraunces','Georgia',serif;
+    --font-body:'Manrope',-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+
+    /* Layout */
+
+    --container:1240px;
+
+    --radius-sm:8px;
+    --radius:16px;
+    --radius-lg:24px;
+
+    /* Shadows */
+
+    --shadow-sm:0 4px 16px rgba(36,31,54,.06);
+    --shadow-md:0 14px 32px rgba(36,31,54,.10);
+    --shadow-lg:0 26px 60px rgba(36,31,54,.16);
+
+    /* Animation */
+
+    --transition:.3s cubic-bezier(.4,0,.2,1);
+    --transition-slow:.7s cubic-bezier(.16,1,.3,1);
+
+}

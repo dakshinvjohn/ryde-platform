@@ -1,0 +1,370 @@
+/* ==========================================
+   LARGE LAPTOPS
+========================================== */
+
+@media (max-width:1200px){
+
+    .hero-grid{
+        grid-template-columns:48% 52%;
+        gap:40px;
+    }
+
+    .coverage-grid{
+        gap:44px;
+    }
+
+}
+
+/* ==========================================
+   SMALL LAPTOPS / NAV BREAK
+   (hamburger takes over before links get cramped)
+========================================== */
+
+@media (max-width:960px){
+
+    .nav-links{
+
+        position:fixed;
+        top:88px;
+        left:0;
+        right:0;
+
+        flex-direction:column;
+        align-items:flex-start;
+        gap:0;
+
+        background:rgba(255,255,255,.97);
+        backdrop-filter:blur(14px);
+
+        max-height:0;
+        overflow:hidden;
+
+        transition:max-height var(--transition-slow);
+
+        border-bottom:1px solid var(--line);
+        box-shadow:var(--shadow-md);
+
+    }
+
+    .nav-links.is-open{
+
+        max-height:420px;
+
+    }
+
+    .nav-links li{
+
+        width:100%;
+
+    }
+
+    .nav-links a{
+
+        display:block;
+        width:100%;
+        padding:18px 6%;
+        opacity:1;
+
+    }
+
+    .nav-links a::after{
+
+        display:none;
+
+    }
+
+    .nav-cta .btn-primary{
+
+        padding:11px 20px;
+        font-size:.85rem;
+
+    }
+
+    .nav-toggle{
+
+        display:flex;
+
+    }
+
+}
+
+/* ==========================================
+   TABLETS
+========================================== */
+
+@media (max-width:900px){
+
+    /* HERO */
+
+    .hero{
+        min-height:auto;
+        padding-top:150px;
+    }
+
+    .hero-grid{
+        grid-template-columns:1fr;
+        text-align:center;
+        gap:48px;
+    }
+
+    .hero-left{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .hero-left h1,
+    .hero p,
+    .hero-coverage{
+        margin-inline:auto;
+    }
+
+    .hero-features{
+        grid-template-columns:1fr;
+        justify-items:center;
+    }
+
+    .buttons{
+        justify-content:center;
+    }
+
+    .hero-right{
+        justify-content:center;
+        overflow:visible;
+        padding:0 8%;
+    }
+
+    .hero-car-card{
+        max-width:480px;
+    }
+
+    .chip-electric{
+        left:0;
+    }
+
+    .chip-rating{
+        right:0;
+    }
+
+    .chip-eta{
+        left:8%;
+    }
+
+    /* TRUST */
+
+    .trust-grid{
+        grid-template-columns:repeat(2,1fr);
+        gap:24px 20px;
+    }
+
+    /* COVERAGE */
+
+    .coverage-grid{
+        grid-template-columns:1fr;
+    }
+
+    .coverage-map{
+        max-width:480px;
+        margin-inline:auto;
+    }
+
+    /* SERVICES */
+
+    .services-grid{
+        grid-template-columns:1fr;
+    }
+
+    /* ROUTES */
+
+    .routes-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    /* PROCESS */
+
+    .process-grid{
+        grid-template-columns:repeat(2,1fr);
+        row-gap:48px;
+    }
+
+    .process-grid::before{
+        display:none;
+    }
+
+    /* REVIEWS */
+
+    .reviews-grid{
+        grid-template-columns:1fr;
+    }
+
+    /* CONTACT */
+
+    .contact-grid{
+        grid-template-columns:1fr;
+        gap:48px;
+    }
+
+    /* FOOTER */
+
+    .footer-grid{
+        grid-template-columns:1fr;
+        text-align:center;
+        gap:44px;
+    }
+
+    footer p{
+        margin-inline:auto;
+    }
+
+    .contact-item{
+        text-align:left;
+    }
+
+}
+@media (max-width:992px){
+
+    .nav-links{
+        display:none;
+    }
+
+    .nav-cta .btn{
+        display:none;
+    }
+
+    .nav-toggle{
+        display:flex;
+    }
+
+}
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width:640px){
+
+    section{
+        padding:64px 0;
+    }
+
+    .hero{
+        padding:130px 0 64px;
+    }
+
+    .nav-container{
+        height:76px;
+    }
+
+    .nav-links{
+        top:76px;
+    }
+
+    .hero-car-card{
+        max-width:100%;
+    }
+
+    .hero-chip{
+        padding:8px 14px;
+        font-size:.68rem;
+        gap:6px;
+    }
+
+    .chip-eta{
+        display:none;
+    }
+
+    .hero-features{
+        margin-bottom:36px;
+    }
+
+    .trust-grid{
+        grid-template-columns:1fr;
+    }
+
+    .routes-grid,
+    .process-grid{
+        grid-template-columns:1fr;
+    }
+
+    .coverage-provinces{
+        justify-content:center;
+    }
+
+    .coverage-homebase{
+        display:flex;
+        justify-content:center;
+        text-align:center;
+    }
+
+    .coverage-stats{
+        grid-template-columns:1fr;
+        gap:20px;
+        text-align:center;
+    }
+
+    .buttons{
+        flex-direction:column;
+        width:100%;
+    }
+
+    .buttons .btn{
+        width:100%;
+        justify-content:center;
+        text-align:center;
+    }
+
+    .contact-form{
+        padding:28px;
+    }
+
+}
+@media (max-width:992px){
+
+    .nav-links{
+        display:none;
+    }
+
+    .nav-cta .btn{
+        display:none;
+    }
+
+    .nav-toggle{
+        display:flex;
+    }
+
+}
+
+/* ==========================================
+   SMALL PHONES
+========================================== */
+
+@media (max-width:992px){
+
+    .nav-links,
+    .nav-cta .btn{
+
+        display:none;
+
+    }
+
+    .nav-toggle{
+
+        display:flex;
+
+    }
+
+}
+@media (max-width:992px){
+
+    .nav-links{
+        display:none;
+    }
+
+    .nav-cta .btn{
+        display:none;
+    }
+
+    .nav-toggle{
+        display:flex;
+    }
+
+}

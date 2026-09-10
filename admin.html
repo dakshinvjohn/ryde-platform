@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Admin | RYDE</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/admin.css">
+
+</head>
+
+<body>
+
+    <!-- ==========================
+         Login gate
+    ========================== -->
+
+    <main class="admin-login-screen" id="adminLoginScreen">
+
+        <form class="admin-login-card" id="adminLoginForm">
+
+            <a href="index.html" class="admin-logo">RYDE<span>.</span></a>
+            <p class="admin-login-tag">Admin</p>
+
+            <label for="adminPassword">Password</label>
+            <input type="password" id="adminPassword" name="password" autocomplete="current-password" required>
+
+            <button type="submit" class="btn btn-primary" id="adminLoginBtn">Log in</button>
+
+            <p class="admin-login-error" id="adminLoginError" hidden></p>
+
+        </form>
+
+    </main>
+
+    <!-- ==========================
+         Dashboard (shown after login)
+    ========================== -->
+
+    <div class="admin-app" id="adminApp" hidden>
+
+        <header class="admin-topbar">
+
+            <a href="index.html" class="admin-logo">RYDE<span>.</span></a>
+            <span class="admin-topbar-title">Bookings &amp; revenue</span>
+
+            <div class="admin-topbar-actions">
+                <button class="btn btn-secondary" id="adminRefreshBtn" type="button">Refresh</button>
+                <button class="btn btn-secondary" id="adminLogoutBtn" type="button">Log out</button>
+            </div>
+
+        </header>
+
+        <main class="admin-main">
+
+            <p class="admin-error" id="adminLoadError" hidden></p>
+
+            <!-- KPI cards -->
+
+            <section class="admin-kpi-grid" id="adminKpiGrid" aria-label="Key stats"></section>
+
+            <!-- Chart -->
+
+            <section class="admin-panel">
+
+                <h2>Bookings, last 14 days</h2>
+                <div id="adminChart" class="admin-chart"></div>
+
+            </section>
+
+            <!-- Bookings table -->
+
+            <section class="admin-panel">
+
+                <div class="admin-table-controls">
+
+                    <h2>Recent bookings</h2>
+
+                    <div class="admin-table-filters">
+
+                        <input type="search" id="adminSearch" placeholder="Search name, email, pickup, destination…">
+
+                        <select id="adminStatusFilter">
+                            <option value="all">All statuses</option>
+                            <option value="paid">Paid</option>
+                            <option value="unpaid">Unpaid</option>
+                        </select>
+
+                        <select id="adminTypeFilter">
+                            <option value="all">All types</option>
+                            <option value="ride">Ride</option>
+                            <option value="moving">Moving</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="admin-table-wrap">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Created</th>
+                                <th>Customer</th>
+                                <th>Trip</th>
+                                <th>Date &amp; time</th>
+                                <th>Type</th>
+                                <th>Fare</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="adminTableBody"></tbody>
+
+                    </table>
+
+                    <p class="admin-table-empty" id="adminTableEmpty" hidden>No bookings match those filters.</p>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="js/admin.js"></script>
+
+</body>
+</html>
