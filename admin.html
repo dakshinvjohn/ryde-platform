@@ -69,6 +69,61 @@
 
             <section class="admin-kpi-grid" id="adminKpiGrid" aria-label="Key stats"></section>
 
+            <!-- Driver schedule / calendar -->
+
+<section class="admin-panel admin-schedule-panel">
+
+    <div class="admin-schedule-header">
+
+        <div>
+            <h2>Driver schedule</h2>
+            <p class="admin-schedule-subtitle">
+                Upcoming bookings and driving schedule
+            </p>
+        </div>
+
+        <div class="admin-calendar-controls">
+
+            <button
+                class="btn btn-secondary"
+                id="adminCalendarPrev"
+                type="button"
+            >
+                ←
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                id="adminCalendarToday"
+                type="button"
+            >
+                Today
+            </button>
+
+            <button
+                class="btn btn-secondary"
+                id="adminCalendarNext"
+                type="button"
+            >
+                →
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="admin-calendar-title" id="adminCalendarTitle"></div>
+
+    <div class="admin-calendar">
+
+        <div class="admin-calendar-days" id="adminCalendarDays"></div>
+
+        <div class="admin-calendar-grid" id="adminCalendarGrid"></div>
+
+    </div>
+
+</section>
+
             <!-- Chart -->
 
             <section class="admin-panel">

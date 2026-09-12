@@ -445,3 +445,259 @@ body{
     .admin-table-filters input{ min-width:0; flex:1; }
 
 }
+/* ==========================================
+   DRIVER SCHEDULE / CALENDAR
+========================================== */
+
+.admin-schedule-panel{
+    overflow:hidden;
+}
+
+.admin-schedule-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    margin-bottom:8px;
+}
+
+.admin-schedule-header h2{
+    margin-bottom:4px;
+}
+
+.admin-schedule-subtitle{
+    margin:0;
+    color:var(--slate);
+    font-size:.82rem;
+}
+
+.admin-calendar-controls{
+    display:flex;
+    gap:8px;
+    flex-shrink:0;
+}
+
+.admin-calendar-title{
+    margin:0 0 14px;
+    font-family:var(--font-mono);
+    font-size:.78rem;
+    color:var(--slate-dim);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+
+.admin-calendar{
+    width:100%;
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+}
+
+.admin-calendar-days{
+    display:grid;
+    grid-template-columns:70px repeat(7,minmax(130px,1fr));
+    min-width:980px;
+    background:var(--mist);
+    border-bottom:1px solid var(--line);
+}
+
+.admin-calendar-day{
+    padding:12px 10px;
+    border-left:1px solid var(--line);
+    text-align:center;
+    font-family:var(--font-mono);
+    font-size:.68rem;
+    color:var(--slate-dim);
+}
+
+.admin-calendar-day:first-child{
+    border-left:none;
+}
+
+.admin-calendar-day strong{
+    display:block;
+    margin-top:3px;
+    font-family:var(--font-body);
+    font-size:.86rem;
+    color:var(--ink);
+}
+
+.admin-calendar-grid{
+    display:grid;
+    grid-template-columns:70px repeat(7,minmax(130px,1fr));
+    min-width:980px;
+    position:relative;
+}
+
+.admin-calendar-time{
+    height:70px;
+    padding:8px 8px 0 0;
+    text-align:right;
+    font-family:var(--font-mono);
+    font-size:.65rem;
+    color:var(--slate-dim);
+    border-bottom:1px solid var(--line);
+}
+
+.admin-calendar-column{
+    position:relative;
+    height:70px;
+    border-left:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+}
+
+.admin-calendar-column:nth-child(8n+1){
+    border-left:none;
+}
+
+.admin-calendar-booking{
+    position:absolute;
+    left:5px;
+    right:5px;
+    min-height:56px;
+    padding:8px;
+    background:var(--lavender-light);
+    border:1px solid var(--lavender);
+    border-radius:var(--radius-sm);
+    overflow:hidden;
+    cursor:pointer;
+    transition:all var(--transition);
+    z-index:2;
+}
+
+.admin-calendar-booking:hover{
+    border-color:var(--lavender-dark);
+    transform:translateY(-1px);
+}
+
+.admin-calendar-booking-time{
+    font-family:var(--font-mono);
+    font-size:.65rem;
+    color:var(--slate-dim);
+    margin-bottom:3px;
+}
+
+.admin-calendar-booking-name{
+    font-size:.78rem;
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.admin-calendar-booking-route{
+    margin-top:3px;
+    font-size:.7rem;
+    color:var(--slate);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.admin-calendar-booking-meta{
+    margin-top:4px;
+    font-size:.65rem;
+    color:var(--slate);
+}
+
+.admin-calendar-booking.is-moving{
+    border-style:dashed;
+}
+
+.admin-calendar-empty{
+    padding:40px 20px;
+    text-align:center;
+    color:var(--slate);
+    font-size:.86rem;
+}
+
+.admin-calendar-day.is-today{
+    background:var(--lavender-light);
+}
+
+.admin-calendar-column.is-today{
+    background:rgba(0,0,0,.015);
+}
+
+/* ==========================================
+   CALENDAR BOOKING DETAIL
+========================================== */
+
+.admin-calendar-detail{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:rgba(0,0,0,.25);
+    z-index:1000;
+}
+
+.admin-calendar-detail[hidden]{
+    display:none;
+}
+
+.admin-calendar-detail-card{
+    width:100%;
+    max-width:440px;
+    padding:24px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-md);
+}
+
+.admin-calendar-detail-card h3{
+    margin:0 0 4px;
+    font-family:var(--font-display);
+    font-size:1.3rem;
+}
+
+.admin-calendar-detail-route{
+    margin:0 0 20px;
+    color:var(--slate);
+}
+
+.admin-calendar-detail-row{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:.84rem;
+}
+
+.admin-calendar-detail-row:last-child{
+    border-bottom:none;
+}
+
+.admin-calendar-detail-label{
+    color:var(--slate-dim);
+}
+
+.admin-calendar-detail-value{
+    text-align:right;
+    font-weight:600;
+}
+
+/* ==========================================
+   CALENDAR MOBILE
+========================================== */
+
+@media (max-width:640px){
+
+    .admin-schedule-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .admin-calendar-controls{
+        width:100%;
+    }
+
+    .admin-calendar-controls .btn{
+        flex:1;
+    }
+
+}
