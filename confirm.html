@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm your RYDE journey</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .confirm-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--mist);}
+        .confirm-card{width:min(560px,100%);padding:36px;background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-md);text-align:center;}
+        .confirm-logo{font-family:var(--font-display);font-size:2rem;font-weight:600;color:var(--ink);}
+        .confirm-logo span{color:var(--lavender);}
+        .confirm-eyebrow{margin:28px 0 8px;font-family:var(--font-mono);font-size:.72rem;color:var(--slate-dim);text-transform:uppercase;letter-spacing:.06em;}
+        .confirm-card h1{margin:0 0 12px;font-family:var(--font-display);font-size:2rem;}
+        .confirm-card p{line-height:1.6;color:var(--slate);}
+        .confirm-summary{margin:24px 0;padding:18px;text-align:left;background:var(--mist);border-radius:var(--radius-sm);}
+        .confirm-summary-row{display:flex;justify-content:space-between;gap:20px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.86rem;}
+        .confirm-summary-row:last-child{border-bottom:0;}
+        .confirm-summary-label{color:var(--slate-dim);}
+        .confirm-actions{display:flex;gap:10px;justify-content:center;margin-top:24px;}
+        .confirm-error{padding:12px 14px;border-radius:var(--radius-sm);background:#fdecea;color:#b3261e;font-size:.85rem;}
+        .confirm-success{padding:12px 14px;border-radius:var(--radius-sm);background:#e6f4ea;color:#1e7b34;font-size:.85rem;}
+        [hidden]{display:none!important;}
+        @media(max-width:520px){.confirm-card{padding:26px 20px}.confirm-actions{flex-direction:column}.confirm-actions .btn{width:100%}}
+    </style>
+</head>
+<body>
+    <main class="confirm-page">
+        <section class="confirm-card">
+            <div class="confirm-logo">RYDE<span>.</span></div>
+            <p class="confirm-eyebrow">Quotation confirmation</p>
+            <h1 id="confirmTitle">Your quotation</h1>
+            <p id="confirmMessage">Loading your quotation…</p>
+
+            <div class="confirm-summary" id="confirmSummary" hidden></div>
+            <p class="confirm-error" id="confirmError" hidden></p>
+            <p class="confirm-success" id="confirmSuccess" hidden></p>
+
+            <div class="confirm-actions" id="confirmActions" hidden>
+                <button class="btn btn-primary" id="confirmButton" type="button">Confirm my ride</button>
+                <a class="btn btn-secondary" href="index.html">Not now</a>
+            </div>
+        </section>
+    </main>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    const title = document.getElementById("confirmTitle");
+    const message = document.getElementById("confirmMessage");
+    const summary = document.getElementById("confirmSummary");
+    const actions = document.getElementById("confirmActions");
+    const button = document.getElementById("confirmButton");
+    const error = document.getElementById("confirmError");
+    const success = document.getElementById("confirmSuccess");
+
+    const money = (n) => `€${(Number(n) || 0).toFixed(2).replace(".", ",")}`;
+
+    if (!token) {
+        message.hidden = true;
+        error.textContent = "This confirmation link is incomplete.";
+        error.hidden = false;
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/confirm-quotation?token=${encodeURIComponent(token)}`, { cache: "no-store" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "This quotation is no longer available.");
+
+        const q = data.quotation;
+        title.textContent = q.language === "nl" ? "Uw offerte" : "Your quotation";
+        summary.innerHTML = `
+            <div class="confirm-summary-row"><span class="confirm-summary-label">Quotation</span><strong>${q.quotationNumber}</strong></div>
+            <div class="confirm-summary-row"><span class="confirm-summary-label">Total</span><strong>${money(q.totalEur)}</strong></div>
+            <div class="confirm-summary-row"><span class="confirm-summary-label">Payment</span><strong>${q.paymentMethod === "advance" ? `${money(q.advanceEur)} advance` : q.paymentMethod.replace("_", " ")}</strong></div>
+        `;
+        summary.hidden = false;
+
+        if (q.status === "confirmed" || q.status === "paid") {
+            message.textContent = q.language === "nl" ? "Uw rit is al bevestigd." : "Your ride has already been confirmed.";
+            return;
+        }
+
+        message.textContent = q.language === "nl" ? "Controleer de gegevens en bevestig uw rit hieronder." : "Please review the quotation and confirm your ride below.";
+        actions.hidden = false;
+
+        button.textContent = q.language === "nl" ? "JA, BEVESTIG MIJN RIT" : "YES, CONFIRM MY RIDE";
+
+        button.addEventListener("click", async () => {
+            button.disabled = true;
+            button.textContent = q.language === "nl" ? "Bevestigen…" : "Confirming…";
+            error.hidden = true;
+
+            try {
+                const confirmRes = await fetch("/api/confirm-quotation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token })
+                });
+                const result = await confirmRes.json();
+                if (!confirmRes.ok) throw new Error(result.error || "Couldn't confirm the ride.");
+
+                actions.hidden = true;
+                message.textContent = q.language === "nl" ? "Bedankt. Uw rit is bevestigd." : "Thank you. Your ride is confirmed.";
+                success.textContent = q.language === "nl"
+                    ? "RYDE heeft uw bevestiging ontvangen. Eventuele betaling wordt volgens uw gekozen betaalwijze verwerkt."
+                    : "RYDE has received your confirmation. Any payment will be handled according to your selected payment method.";
+                success.hidden = false;
+            } catch (confirmError) {
+                error.textContent = confirmError.message || "Couldn't confirm the ride.";
+                error.hidden = false;
+                button.disabled = false;
+                button.textContent = q.language === "nl" ? "JA, BEVESTIG MIJN RIT" : "YES, CONFIRM MY RIDE";
+            }
+        });
+    } catch (err) {
+        message.hidden = true;
+        error.textContent = err.message || "This quotation is no longer available.";
+        error.hidden = false;
+    }
+});
+</script>
+</body>
+</html>
