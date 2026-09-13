@@ -3,20 +3,15 @@ const { getSupabaseAdmin } = require("../lib/supabase-admin");
 const { getResend, FROM_ADDRESS, OWNER_EMAIL, bookingCustomerEmail, bookingOwnerEmail } = require("../lib/resend");
 
 function readRawBody(req) {
-
     return new Promise((resolve, reject) => {
-
         const chunks = [];
         req.on("data", (chunk) => chunks.push(chunk));
         req.on("end", () => resolve(Buffer.concat(chunks)));
         req.on("error", reject);
-
     });
-
 }
 
 const handler = async (req, res) => {
-
     if (req.method !== "POST") {
         res.status(405).end("Method not allowed");
         return;
@@ -34,23 +29,66 @@ const handler = async (req, res) => {
     let event;
 
     try {
-
         const rawBody = await readRawBody(req);
         event = stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET);
-
     } catch (err) {
-
         console.error("RYDE: webhook signature verification failed:", err.message);
         res.status(400).send(`Webhook Error: ${err.message}`);
         return;
-
     }
 
     if (event.type === "checkout.session.completed") {
-
         const session = event.data.object;
         const meta = session.metadata || {};
+        const supabase = getSupabaseAdmin();
 
+        /* ---------------------------------------
+           Quotation payment
+        --------------------------------------- */
+        if (meta.quotationId) {
+            try {
+                const { data: quotation, error: quotationError } = await supabase
+                    .from("quotations")
+                    .select("id, booking_id, payment_method, total_eur, advance_eur, status")
+                    .eq("id", meta.quotationId)
+                    .single();
+
+                if (quotationError) throw quotationError;
+
+                const fullyPaid = quotation.payment_method === "online_full";
+
+                const { error: quoteUpdateError } = await supabase
+                    .from("quotations")
+                    .update({
+                        status: fullyPaid ? "paid" : "confirmed",
+                        paid_at: new Date().toISOString()
+                    })
+                    .eq("id", quotation.id)
+                    .neq("status", "paid");
+
+                if (quoteUpdateError) throw quoteUpdateError;
+
+                const { error: bookingUpdateError } = await supabase
+                    .from("bookings")
+                    .update({
+                        payment_method: fullyPaid ? "online_full" : "advance",
+                        payment_status: fullyPaid ? "paid" : "unpaid"
+                    })
+                    .eq("id", quotation.booking_id);
+
+                if (bookingUpdateError) throw bookingUpdateError;
+
+            } catch (quoteErr) {
+                console.error("RYDE: quotation payment update failed:", quoteErr);
+            }
+
+            res.status(200).json({ received: true });
+            return;
+        }
+
+        /* ---------------------------------------
+           Existing direct online booking flow
+        --------------------------------------- */
         const booking = {
             fullName: meta.fullName || "",
             email: session.customer_details?.email || session.customer_email || "",
@@ -69,13 +107,7 @@ const handler = async (req, res) => {
         };
 
         try {
-
-            const supabase = getSupabaseAdmin();
-
             // Idempotency: Stripe can and will retry webhook deliveries.
-            // A unique constraint on stripe_session_id (see
-            // supabase-schema.sql) makes a duplicate insert a no-op
-            // instead of a double-booked row.
             const { error } = await supabase
                 .from("bookings")
                 .insert({
@@ -96,20 +128,13 @@ const handler = async (req, res) => {
                     stripe_session_id: session.id
                 });
 
-            if (error && error.code !== "23505") throw error; // 23505 = unique_violation (duplicate webhook retry)
-
+            if (error && error.code !== "23505") throw error;
         } catch (dbErr) {
-
             console.error("RYDE: saving paid booking failed:", dbErr);
-            // Still ack the webhook — Stripe already has the payment.
-            // Fix the DB issue and re-drive from the Stripe dashboard if needed.
-
         }
 
         try {
-
             const resend = getResend();
-
             const customerEmail = bookingCustomerEmail(booking);
             await resend.emails.send({
                 from: FROM_ADDRESS,
@@ -119,7 +144,6 @@ const handler = async (req, res) => {
             });
 
             if (OWNER_EMAIL) {
-
                 const ownerEmail = bookingOwnerEmail(booking);
                 await resend.emails.send({
                     from: FROM_ADDRESS,
@@ -127,26 +151,15 @@ const handler = async (req, res) => {
                     subject: ownerEmail.subject,
                     html: ownerEmail.html
                 });
-
             }
-
         } catch (emailErr) {
-
             console.error("RYDE: paid booking confirmation email failed:", emailErr);
-
         }
-
     }
 
     res.status(200).json({ received: true });
-
 };
 
-// Stripe requires the raw, unparsed request body to verify the
-// webhook signature — turn off Vercel's automatic JSON body parsing
-// for this endpoint only. Must be attached to the handler itself,
-// not set on module.exports before the handler is assigned to it,
-// or it gets wiped out by the assignment below.
 handler.config = {
     api: {
         bodyParser: false
