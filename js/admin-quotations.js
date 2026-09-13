@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tableBody) return;
 
     const getToken = () => sessionStorage.getItem(TOKEN_KEY);
-    const eur = (n) => `€${(Number(n) || 0).toFixed(2).replace(".", ",")}`;
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     }[c]));
@@ -105,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="admin-quotation-section-head">
                             <div>
                                 <h3>Price breakdown</h3>
-                                <p>Matches the quotation structure you use: service, distance/logistics, discounts and total.</p>
+                                <p>Matches your quotation structure: service, distance/logistics, discounts and total.</p>
                             </div>
                             <button type="button" class="btn btn-secondary" id="quotationAddItem">+ Add line</button>
                         </div>
@@ -210,8 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 sendButton.textContent = "Sent ✓";
                 sendButton.disabled = true;
                 setTimeout(removeModal, 900);
-                window.dispatchEvent(new CustomEvent("ryde:quotation-sent", { detail: result }));
-
             } catch (error) {
                 console.error("RYDE quotation creation failed:", error);
                 warning.textContent = error.message || "Couldn't create the quotation.";
@@ -222,28 +219,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    tableBody.addEventListener("click", (event) => {
+    tableBody.addEventListener("click", async (event) => {
         const button = event.target.closest(".admin-quotation-btn");
         if (!button) return;
 
-        const booking = window.rydeAdminBookings?.find((b) => String(b.id) === String(button.dataset.bookingId));
-        if (!booking) {
-            const rows = [...tableBody.querySelectorAll("tr")];
-            const row = button.closest("tr");
-            if (!row) return;
-            const bookingId = button.dataset.bookingId;
-            const fallback = { id: bookingId, full_name: row.children[1]?.innerText.split("\n")[0] || "Customer", email: "", pickup: "", destination: "", booking_date: "", booking_time: "", vehicle: "", fare_eur: 0 };
-            openModal(fallback);
-            return;
+        button.disabled = true;
+        try {
+            const res = await authedFetch("/api/admin-bookings");
+            if (res.status === 401) throw new Error("Your session expired. Please log in again.");
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || "Couldn't load the booking.");
+            const booking = (result.bookings || []).find((b) => String(b.id) === String(button.dataset.bookingId));
+            if (!booking) throw new Error("That booking could not be found.");
+            openModal(booking);
+        } catch (error) {
+            console.error("RYDE quotation booking lookup failed:", error);
+            loadError.textContent = error.message || "Couldn't open that booking.";
+            loadError.hidden = false;
+        } finally {
+            button.disabled = false;
         }
-        openModal(booking);
     });
 
     const observer = new MutationObserver(injectButtons);
     observer.observe(tableBody, { childList: true, subtree: true });
     injectButtons();
-
-    window.addEventListener("ryde:quotation-sent", () => {
-        injectButtons();
-    });
 });
