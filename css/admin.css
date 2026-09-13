@@ -701,3 +701,26 @@ body{
     }
 
 }
+/* ==========================================
+   ADMIN LOGIN LOGO
+========================================== */
+
+.admin-login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin: 0 auto 10px;
+}
+
+.admin-login-logo img {
+    display: block;
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+}
+
+.admin-login-tag {
+    text-align: center;
+    margin: 0 0 28px;
+}

@@ -24,29 +24,45 @@
     <!-- ==========================
          Login gate
     ========================== -->
+<main class="admin-login-screen" id="adminLoginScreen">
 
-    <main class="admin-login-screen" id="adminLoginScreen">
+    <form class="admin-login-card" id="adminLoginForm">
 
-        <form class="admin-login-card" id="adminLoginForm">
+        <a href="admin.html" class="admin-login-logo">
+            <img
+                src="images/RYDE_DP_LOGO.png"
+                alt="RYDE NL - Premium Chauffeur Service"
+            >
+        </a>
 
-                <a href="admin.html" class="logo">
-                    <img
-                        src="images/RYDE_DP_LOGO.png"
-                        alt="RYDE NL - Premium Chauffeur Service"
-                    >
-                </a>
-            <p class="admin-login-tag">Admin</p>
+        <p class="admin-login-tag">Admin</p>
 
-            <label for="adminPassword">Password</label>
-            <input type="password" id="adminPassword" name="password" autocomplete="current-password" required>
+        <label for="adminPassword">Password</label>
+        <input
+            type="password"
+            id="adminPassword"
+            name="password"
+            autocomplete="current-password"
+            required
+        >
 
-            <button type="submit" class="btn btn-primary" id="adminLoginBtn">Log in</button>
+        <button
+            type="submit"
+            class="btn btn-primary"
+            id="adminLoginBtn"
+        >
+            Log in
+        </button>
 
-            <p class="admin-login-error" id="adminLoginError" hidden></p>
+        <p
+            class="admin-login-error"
+            id="adminLoginError"
+            hidden
+        ></p>
 
-        </form>
+    </form>
 
-    </main>
+</main>
 
     <!-- ==========================
          Dashboard (shown after login)
