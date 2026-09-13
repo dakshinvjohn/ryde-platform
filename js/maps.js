@@ -8,18 +8,24 @@
 // - Live driving route
 // - Real distance/duration
 // - Custom pickup/destination markers
-// - Advanced Marker support when a Map ID is configured
 //
-// Removed to reduce unnecessary API usage:
-// - Map click-to-address
-// - Draggable pins
-// - Reverse geocoding
-// - "My location"
-// - Blur-based geocoding
+// Removes unnecessary API-heavy interactions:
+// - Map click -> reverse geocoding
+// - Draggable pins -> reverse geocoding
+// - "My location" -> reverse geocoding
+// - Blur -> address geocoding
 //
-// Communicates with booking.js through:
-// - "ryde:route-updated"
-// - "ryde:route-error"
+// IMPORTANT:
+// Airport shortcut routes remain controlled by booking.js.
+// For example:
+// booking.html?route=schiphol
+//
+// booking.js keeps the advertised fixed airport fare.
+// Maps does NOT geocode those prefilled addresses automatically.
+//
+// Events:
+// - ryde:route-updated
+// - ryde:route-error
 // ==========================================
 
 (function () {
@@ -33,7 +39,35 @@
     const destinationInput = document.getElementById("destination");
     const mapStatusEl = document.getElementById("bookingMapStatus");
 
-    if (!mapEl || !pickupInput || !destinationInput) return;
+    if (!mapEl || !pickupInput || !destinationInput) {
+        return;
+    }
+
+
+    // ==========================================
+    // STATE
+    // ==========================================
+
+    let map = null;
+    let directionsService = null;
+    let directionsRenderer = null;
+
+    let autocompletePickup = null;
+    let autocompleteDestination = null;
+
+    let pickupPlace = null;
+    let destinationPlace = null;
+
+    let pickupMarker = null;
+    let destinationMarker = null;
+
+    let usingAdvancedMarkers = false;
+
+    let mapsLoaded = false;
+    let mapsLoading = false;
+
+    let lastRouteKey = "";
+    let routeRequestInProgress = false;
 
 
     // ==========================================
@@ -60,14 +94,18 @@
 
 
     // ==========================================
-    // API KEY CHECK
+    // API KEY
     // ==========================================
 
     if (!API_KEY) {
 
-        console.warn("RYDE Maps: no API key configured.");
+        console.warn(
+            "RYDE Maps: no Google Maps API key configured."
+        );
 
-        showStatus("Live map coming soon...");
+        showStatus(
+            "Live map coming soon..."
+        );
 
         return;
 
@@ -82,7 +120,7 @@
 
         console.error(
             "RYDE Maps: Google rejected the API key. " +
-            "Check the API key restrictions, enabled APIs and billing."
+            "Check API key restrictions, enabled APIs and billing."
         );
 
         showStatus(
@@ -100,80 +138,68 @@
 
         {
             elementType: "geometry",
-            stylers: [{ color: "#f4f1fb" }]
+            stylers: [
+                { color: "#f4f1fb" }
+            ]
         },
 
         {
             elementType: "labels.text.fill",
-            stylers: [{ color: "#6e6780" }]
+            stylers: [
+                { color: "#6e6780" }
+            ]
         },
 
         {
             elementType: "labels.text.stroke",
-            stylers: [{ color: "#ffffff" }]
+            stylers: [
+                { color: "#ffffff" }
+            ]
         },
 
         {
             featureType: "road",
             elementType: "geometry",
-            stylers: [{ color: "#ffffff" }]
+            stylers: [
+                { color: "#ffffff" }
+            ]
         },
 
         {
             featureType: "road.highway",
             elementType: "geometry",
-            stylers: [{ color: "#e4dff5" }]
+            stylers: [
+                { color: "#e4dff5" }
+            ]
         },
 
         {
             featureType: "water",
             elementType: "geometry",
-            stylers: [{ color: "#d9d2f0" }]
+            stylers: [
+                { color: "#d9d2f0" }
+            ]
         },
 
         {
             featureType: "poi",
-            stylers: [{ visibility: "off" }]
+            stylers: [
+                { visibility: "off" }
+            ]
         },
 
         {
             featureType: "transit",
-            stylers: [{ visibility: "off" }]
+            stylers: [
+                { visibility: "off" }
+            ]
         }
 
     ];
 
 
     // ==========================================
-    // STATE
-    // ==========================================
-
-    let map;
-    let directionsService;
-    let directionsRenderer;
-
-    let autocompletePickup;
-    let autocompleteDestination;
-
-    let pickupPlace = null;
-    let destinationPlace = null;
-
-    let pickupMarker;
-    let destinationMarker;
-
-    let usingAdvancedMarkers = false;
-
-    // Prevent duplicate route requests when both
-    // Places events and other form events fire close together.
-    let routeRequestInProgress = false;
-    let routeRequestTimer = null;
-
-    // Prevent calculating the exact same route repeatedly.
-    let lastRouteKey = "";
-
-
-    // ==========================================
-    // AUTOCOMPLETE
+    // AUTOCOMPLETE OPTIONS
     // ==========================================
 
     const AUTOCOMPLETE_OPTIONS = {
@@ -205,14 +231,19 @@
 
             try {
 
-                const pin = new google.maps.marker.PinElement({
+                const pin =
+                    new google.maps.marker.PinElement({
 
-                    background: color,
-                    borderColor: "#ffffff",
-                    glyphColor: "#ffffff",
-                    glyph
+                        background: color,
 
-                });
+                        borderColor: "#ffffff",
+
+                        glyphColor: "#ffffff",
+
+                        glyph
+
+                    });
+
 
                 const marker =
                     new google.maps.marker.AdvancedMarkerElement({
@@ -225,14 +256,20 @@
 
                     });
 
+
                 return {
 
                     setPosition(latLng) {
+
                         marker.position = latLng;
+
                     },
 
                     setVisible(visible) {
-                        marker.map = visible ? map : null;
+
+                        marker.map =
+                            visible ? map : null;
+
                     }
 
                 };
@@ -240,8 +277,8 @@
             } catch (error) {
 
                 console.warn(
-                    "RYDE Maps: AdvancedMarkerElement unavailable. " +
-                    "Using classic marker.",
+                    "RYDE Maps: Advanced markers unavailable. " +
+                    "Using classic markers.",
                     error
                 );
 
@@ -256,55 +293,62 @@
         // Classic Marker fallback
         // --------------------------------------
 
-        const marker = new google.maps.Marker({
+        const marker =
+            new google.maps.Marker({
 
-            map: null,
+                map: null,
 
-            visible: false,
+                visible: false,
 
-            icon: {
+                icon: {
 
-                path: google.maps.SymbolPath.CIRCLE,
+                    path:
+                        google.maps.SymbolPath.CIRCLE,
 
-                scale: 10,
+                    scale: 10,
 
-                fillColor: color,
+                    fillColor: color,
 
-                fillOpacity: 1,
+                    fillOpacity: 1,
 
-                strokeColor: "#ffffff",
+                    strokeColor: "#ffffff",
 
-                strokeWeight: 2,
+                    strokeWeight: 2,
 
-                labelOrigin: new google.maps.Point(0, 0)
+                    labelOrigin:
+                        new google.maps.Point(0, 0)
 
-            },
+                },
 
-            label: {
+                label: {
 
-                text: glyph,
+                    text: glyph,
 
-                color: "#ffffff",
+                    color: "#ffffff",
 
-                fontSize: "12px",
+                    fontSize: "12px",
 
-                fontWeight: "700"
+                    fontWeight: "700"
 
-            },
+                },
 
-            title
+                title
 
-        });
+            });
 
 
         return {
 
             setPosition(latLng) {
+
                 marker.setPosition(latLng);
+
             },
 
             setVisible(visible) {
+
                 marker.setVisible(visible);
+
             }
 
         };
@@ -313,10 +357,53 @@
 
 
     // ==========================================
-    // ROUTE
+    // ROUTE KEY
+    // ==========================================
+
+    function getRouteKey() {
+
+        if (
+            !pickupPlace ||
+            !pickupPlace.geometry ||
+            !destinationPlace ||
+            !destinationPlace.geometry
+        ) {
+
+            return "";
+
+        }
+
+
+        const origin =
+            pickupPlace.geometry.location;
+
+        const destination =
+            destinationPlace.geometry.location;
+
+
+        return (
+            `${origin.lat()},${origin.lng()}` +
+            `|${destination.lat()},${destination.lng()}`
+        );
+
+    }
+
+
+    // ==========================================
+    // CALCULATE ROUTE
     // ==========================================
 
     function calculateRoute() {
+
+        if (
+            !directionsService ||
+            !directionsRenderer
+        ) {
+
+            return;
+
+        }
+
 
         if (
             !pickupPlace ||
@@ -330,24 +417,18 @@
         }
 
 
-        const origin =
-            pickupPlace.geometry.location;
-
-        const destination =
-            destinationPlace.geometry.location;
-
-
-        // --------------------------------------
-        // Create a simple route key.
-        //
-        // If the customer selects the same
-        // addresses again, don't call Routes
-        // unnecessarily.
-        // --------------------------------------
-
         const routeKey =
-            `${origin.lat()},${origin.lng()}|${destination.lat()},${destination.lng()}`;
+            getRouteKey();
 
+
+        if (!routeKey) {
+            return;
+        }
+
+
+        // --------------------------------------
+        // Don't request the same route twice.
+        // --------------------------------------
 
         if (routeKey === lastRouteKey) {
 
@@ -355,6 +436,10 @@
 
         }
 
+
+        // --------------------------------------
+        // Don't send overlapping requests.
+        // --------------------------------------
 
         if (routeRequestInProgress) {
 
@@ -367,7 +452,16 @@
 
         routeRequestInProgress = true;
 
-        showStatus("Calculating route…");
+        showStatus(
+            "Calculating route…"
+        );
+
+
+        const origin =
+            pickupPlace.geometry.location;
+
+        const destination =
+            destinationPlace.geometry.location;
 
 
         directionsService.route({
@@ -376,7 +470,8 @@
 
             destination,
 
-            travelMode: google.maps.TravelMode.DRIVING
+            travelMode:
+                google.maps.TravelMode.DRIVING
 
         }, (result, status) => {
 
@@ -390,22 +485,25 @@
                     status
                 );
 
-                // Allow another attempt after a failed request.
+                // Allow retry if the request failed.
                 lastRouteKey = "";
 
                 showStatus(
-                    "Couldn't calculate that route. Please check both addresses."
+                    "Couldn't calculate that route. " +
+                    "Please check both addresses."
                 );
+
 
                 document.dispatchEvent(
 
-                    new CustomEvent("ryde:route-error", {
-
-                        detail: {
-                            status
+                    new CustomEvent(
+                        "ryde:route-error",
+                        {
+                            detail: {
+                                status
+                            }
                         }
-
-                    })
+                    )
 
                 );
 
@@ -416,59 +514,53 @@
 
             hideStatus();
 
-            directionsRenderer.setDirections(result);
+
+            directionsRenderer.setDirections(
+                result
+            );
+
+
+            const route =
+                result.routes[0];
 
 
             const leg =
-                result.routes[0].legs[0];
+                route.legs[0];
 
 
             // ----------------------------------
-            // Send route information to booking.js
+            // Send real route information
+            // to booking.js
             // ----------------------------------
 
             document.dispatchEvent(
 
-                new CustomEvent("ryde:route-updated", {
+                new CustomEvent(
+                    "ryde:route-updated",
+                    {
 
-                    detail: {
+                        detail: {
 
-                        distanceMeters:
-                            leg.distance.value,
+                            distanceMeters:
+                                leg.distance.value,
 
-                        distanceText:
-                            leg.distance.text,
+                            distanceText:
+                                leg.distance.text,
 
-                        durationSeconds:
-                            leg.duration.value,
+                            durationSeconds:
+                                leg.duration.value,
 
-                        durationText:
-                            leg.duration.text
+                            durationText:
+                                leg.duration.text
+
+                        }
 
                     }
-
-                })
+                )
 
             );
 
         });
-
-    }
-
-
-    // ==========================================
-    // ROUTE REQUEST DEBOUNCE
-    // ==========================================
-
-    function scheduleRouteCalculation() {
-
-        clearTimeout(routeRequestTimer);
-
-        routeRequestTimer = setTimeout(() => {
-
-            calculateRoute();
-
-        }, 150);
 
     }
 
@@ -495,6 +587,13 @@
                 : destinationMarker;
 
 
+        if (!place || !place.geometry) {
+
+            return;
+
+        }
+
+
         if (isPickup) {
 
             pickupPlace = place;
@@ -506,75 +605,105 @@
         }
 
 
-        if (
-            place.formatted_address ||
-            place.name
-        ) {
+        // --------------------------------------
+        // Keep the input text clean.
+        // --------------------------------------
 
-            input.value =
-                place.formatted_address ||
-                place.name;
+        input.value =
+            place.formatted_address ||
+            place.name ||
+            input.value;
+
+
+        // --------------------------------------
+        // Position marker.
+        // --------------------------------------
+
+        if (marker) {
+
+            marker.setPosition(
+                place.geometry.location
+            );
+
+            marker.setVisible(true);
 
         }
 
 
-        marker.setPosition(
-            place.geometry.location
-        );
+        // --------------------------------------
+        // Calculate route only when both
+        // addresses are available.
+        // --------------------------------------
 
-        marker.setVisible(true);
-
-
-        scheduleRouteCalculation();
+        calculateRoute();
 
     }
 
 
     // ==========================================
-    // INITIALISE GOOGLE MAPS
+    // INITIALISE MAP
     // ==========================================
 
-    async function initRydeMap() {
+    async function initialiseMap() {
 
-        console.log(
-            "RYDE Maps: Google Maps loaded. Initialising..."
-        );
+        if (mapsLoaded) {
+            return;
+        }
+
+
+        if (mapsLoading) {
+            return;
+        }
+
+
+        mapsLoading = true;
 
 
         try {
 
-            // ----------------------------------
-            // Load only the libraries we need
-            // ----------------------------------
+            console.log(
+                "RYDE Maps: loading Google Maps..."
+            );
+
 
             const { Map } =
-                await google.maps.importLibrary("maps");
+                await google.maps.importLibrary(
+                    "maps"
+                );
 
 
-            const { DirectionsService, DirectionsRenderer } =
-                await google.maps.importLibrary("routes");
+            const {
+                DirectionsService,
+                DirectionsRenderer
+            } =
+                await google.maps.importLibrary(
+                    "routes"
+                );
 
 
-            await google.maps.importLibrary("places");
+            await google.maps.importLibrary(
+                "places"
+            );
 
 
             // ----------------------------------
-            // Advanced markers are optional
+            // Advanced markers optional
             // ----------------------------------
 
             if (MAP_ID) {
 
                 try {
 
-                    await google.maps.importLibrary("marker");
+                    await google.maps.importLibrary(
+                        "marker"
+                    );
 
                     usingAdvancedMarkers = true;
 
                 } catch (error) {
 
                     console.warn(
-                        "RYDE Maps: marker library unavailable. " +
-                        "Using classic markers.",
+                        "RYDE Maps: marker library unavailable.",
                         error
                     );
 
@@ -584,20 +713,17 @@
 
 
             // ----------------------------------
-            // Default centre
+            // Default map centre
             // ----------------------------------
 
             const centre = {
 
                 lat: 51.9692,
+
                 lng: 5.6669
 
             };
 
-
-            // ----------------------------------
-            // Map options
-            // ----------------------------------
 
             const mapOptions = {
 
@@ -614,11 +740,13 @@
 
             if (MAP_ID) {
 
-                mapOptions.mapId = MAP_ID;
+                mapOptions.mapId =
+                    MAP_ID;
 
             } else {
 
-                mapOptions.styles = MAP_STYLE;
+                mapOptions.styles =
+                    MAP_STYLE;
 
             }
 
@@ -634,10 +762,6 @@
                 );
 
 
-            // ----------------------------------
-            // Directions
-            // ----------------------------------
-
             directionsService =
                 new DirectionsService();
 
@@ -647,11 +771,13 @@
 
                     map,
 
+                    // We use our own A/B markers.
                     suppressMarkers: true,
 
                     polylineOptions: {
 
-                        strokeColor: "#8B7FD1",
+                        strokeColor:
+                            "#8B7FD1",
 
                         strokeWeight: 5,
 
@@ -663,7 +789,7 @@
 
 
             // ----------------------------------
-            // Custom markers
+            // Markers
             // ----------------------------------
 
             pickupMarker =
@@ -707,7 +833,7 @@
 
 
             // ----------------------------------
-            // Pickup selected
+            // Pickup
             // ----------------------------------
 
             autocompletePickup.addListener(
@@ -723,7 +849,8 @@
                     if (!place.geometry) {
 
                         console.warn(
-                            "RYDE Maps: pickup place has no geometry."
+                            "RYDE NL Maps: pickup selection " +
+                            "did not contain geometry."
                         );
 
                         return;
@@ -737,14 +864,16 @@
                     );
 
 
-                    // Tell booking.js that the address
-                    // came from Google Places.
+                    // Tell booking.js that the
+                    // value came from autocomplete.
+
                     pickupInput.dispatchEvent(
 
                         new CustomEvent(
                             "input",
                             {
                                 bubbles: true,
+
                                 detail: {
                                     fromAutocomplete: true
                                 }
@@ -759,7 +888,7 @@
 
 
             // ----------------------------------
-            // Destination selected
+            // Destination
             // ----------------------------------
 
             autocompleteDestination.addListener(
@@ -775,7 +904,8 @@
                     if (!place.geometry) {
 
                         console.warn(
-                            "RYDE Maps: destination place has no geometry."
+                            "RYDE Maps: destination selection " +
+                            "did not contain geometry."
                         );
 
                         return;
@@ -795,6 +925,7 @@
                             "input",
                             {
                                 bubbles: true,
+
                                 detail: {
                                     fromAutocomplete: true
                                 }
@@ -808,32 +939,37 @@
             );
 
 
-            // ----------------------------------
-            // Initial state
-            // ----------------------------------
+            mapsLoaded = true;
+
+            mapsLoading = false;
 
             hideStatus();
 
 
-            // ----------------------------------
-            // Handle pre-filled booking routes
-            //
-            // We deliberately DO NOT geocode these
-            // automatically because that would create
-            // another unnecessary Geocoding API call.
-            //
-            // If booking.js pre-fills addresses,
-            // the user can select them from autocomplete.
-            // ----------------------------------
-
             console.log(
-                "RYDE Maps: ready. " +
-                "Select pickup and destination to calculate the route."
+                "RYDE NL Maps: ready."
             );
 
 
+            // ==================================
+            // IMPORTANT:
+            //
+            // We intentionally do NOT geocode
+            // prefilled airport addresses here.
+            //
+            // booking.js remains responsible for:
+            //
+            // ?route=schiphol
+            // ?route=eindhoven
+            // etc.
+            //
+            // This prevents an unnecessary
+            // Geocoding API request.
+            // ==================================
+
+
             // ----------------------------------
-            // Responsive map resize
+            // Responsive resize
             // ----------------------------------
 
             let resizeTimer;
@@ -845,13 +981,17 @@
 
                 () => {
 
-                    clearTimeout(resizeTimer);
+                    clearTimeout(
+                        resizeTimer
+                    );
 
 
                     resizeTimer =
                         setTimeout(() => {
 
-                            if (!map) return;
+                            if (!map) {
+                                return;
+                            }
 
 
                             google.maps.event.trigger(
@@ -861,7 +1001,8 @@
 
 
                             const directions =
-                                directionsRenderer.getDirections();
+                                directionsRenderer
+                                    .getDirections();
 
 
                             if (
@@ -876,12 +1017,6 @@
                                         .bounds
                                 );
 
-                            } else {
-
-                                map.setCenter(
-                                    centre
-                                );
-
                             }
 
                         }, 250);
@@ -892,6 +1027,8 @@
 
         } catch (error) {
 
+            mapsLoading = false;
+
             console.error(
                 "RYDE Maps: failed to initialise.",
                 error
@@ -899,7 +1036,8 @@
 
 
             showStatus(
-                "Live map couldn't load. Route estimates are still available."
+                "Live map couldn't load. " +
+                "Route estimates are still available."
             );
 
         }
@@ -908,49 +1046,115 @@
 
 
     // ==========================================
-    // GOOGLE CALLBACK
+    // LAZY LOAD
+    //
+    // Google Maps isn't loaded immediately.
+    //
+    // It starts when the customer interacts
+    // with either address field.
     // ==========================================
 
-    window.initRydeMap =
-        initRydeMap;
+    let googleScriptLoading = false;
+
+
+    function loadGoogleMaps() {
+
+        if (mapsLoaded) {
+            return;
+        }
+
+
+        if (googleScriptLoading) {
+            return;
+        }
+
+
+        googleScriptLoading = true;
+
+        showStatus(
+            "Loading live map…"
+        );
+
+
+        // --------------------------------------
+        // If another script already loaded Google
+        // Maps, initialise directly.
+        // --------------------------------------
+
+        if (
+            window.google &&
+            window.google.maps
+        ) {
+
+            initialiseMap();
+
+            return;
+
+        }
+
+
+        window.initRydeMap =
+            initialiseMap;
+
+
+        const script =
+            document.createElement("script");
+
+
+        script.src =
+            `https://maps.googleapis.com/maps/api/js` +
+            `?key=${encodeURIComponent(API_KEY)}` +
+            `&callback=initRydeMap` +
+            `&loading=async` +
+            `&v=weekly`;
+
+
+        script.async = true;
+
+        script.defer = true;
+
+
+        script.onerror = () => {
+
+            googleScriptLoading = false;
+
+            console.error(
+                "RYDE Maps: Google Maps script failed to load."
+            );
+
+
+            showStatus(
+                "Live map couldn't load. " +
+                "Route estimates are still available."
+            );
+
+        };
+
+
+        document.head.appendChild(
+            script
+        );
+
+    }
 
 
     // ==========================================
-    // LOAD GOOGLE MAPS
+    // START MAP ONLY WHEN ADDRESS FIELDS
+    // ARE ACTUALLY USED
     // ==========================================
 
-    showStatus(
-        "Loading live map…"
+    pickupInput.addEventListener(
+        "focus",
+        loadGoogleMaps,
+        { once: true }
     );
 
 
-    const script =
-        document.createElement("script");
+    destinationInput.addEventListener(
+        "focus",
+        loadGoogleMaps,
+        { once: true }
+    );
 
-
-    script.src =
-        `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(API_KEY)}&callback=initRydeMap&loading=async&v=weekly`;
-
-
-    script.async = true;
-
-    script.defer = true;
-
-
-    script.onerror = () => {
-
-        console.error(
-            "RYDE Maps: Google Maps script failed to load."
-        );
-
-
-        showStatus(
-            "Live map couldn't load. Route estimates are still available."
-        );
-
-    };
-
-
-    document.head.appendChild(script);
 
 })();

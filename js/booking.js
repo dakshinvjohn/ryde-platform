@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
    Moving jobs use base + distance.
 --------------------------------------- */
 
-const DISCOUNT_RATE = 0.25; // online-booking incentive, shown as a struck-through saving
+const DISCOUNT_RATE = 0.20; // online-booking incentive, shown as a struck-through saving
 
 // Until a Google Maps API key is configured, there's no live driving
 // distance for a typed (non-airport) address pair. Rather than show
