@@ -55,6 +55,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const openModal = (booking) => {
         removeModal();
 
+        const distance = Number(booking.distance_km);
+        const duration = Number(booking.duration_minutes);
+        const hasDistance = Number.isFinite(distance);
+        const hasDuration = Number.isFinite(duration);
+        const fare = Number(booking.fare_eur) || 0;
+
+        const routeLine = hasDistance || hasDuration
+            ? `${hasDistance ? escapeHtml(booking.distance_text || `${distance.toFixed(1)} km`) : "Distance not available"} · ${hasDuration ? escapeHtml(booking.duration_text || `${Math.round(duration)} min`) : "Travel time not available"}`
+            : "Live route details were not captured for this request.";
+
         const modal = document.createElement("div");
         modal.className = "admin-quotation-modal";
         modal.innerHTML = `
@@ -66,6 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         <p>${escapeHtml(booking.full_name)} · ${escapeHtml(booking.pickup)} → ${escapeHtml(booking.destination)}</p>
                     </div>
                     <button type="button" class="admin-quotation-close" aria-label="Close">×</button>
+                </div>
+
+                <div class="admin-quotation-route-details">
+                    <div><span>Route</span><strong>${escapeHtml(booking.pickup)} → ${escapeHtml(booking.destination)}</strong></div>
+                    <div><span>Distance / travel time</span><strong>${routeLine}</strong></div>
+                    <div><span>Date / time</span><strong>${escapeHtml(booking.booking_date || "—")} · ${escapeHtml(booking.booking_time || "—")}</strong></div>
+                    <div><span>Passengers / luggage</span><strong>${escapeHtml(booking.passengers ?? "—")} / ${escapeHtml(booking.luggage ?? "—")}</strong></div>
+                    <div><span>Vehicle</span><strong>${escapeHtml(booking.vehicle || "—")}</strong></div>
                 </div>
 
                 <form id="adminQuotationForm" class="admin-quotation-form">
@@ -88,11 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         </label>
                         <label>
                             Total quoted price (€)
-                            <input name="totalEur" id="quotationTotal" type="number" min="0.01" step="0.01" value="${Number(booking.fare_eur) || ""}" required>
+                            <input name="totalEur" id="quotationTotal" type="number" min="0.01" step="0.01" value="${fare || ""}" required>
                         </label>
                         <label id="quotationAdvanceWrap">
                             Advance (€)
-                            <input name="advanceEur" id="quotationAdvance" type="number" min="0" step="0.01" value="${Math.max(0, Math.round((Number(booking.fare_eur) || 0) * 0.25 * 100) / 100)}">
+                            <input name="advanceEur" id="quotationAdvance" type="number" min="0" step="0.01" value="${fare ? Math.round(fare * 0.25 * 100) / 100 : ""}">
                         </label>
                         <label>
                             Valid until
@@ -104,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="admin-quotation-section-head">
                             <div>
                                 <h3>Price breakdown</h3>
-                                <p>Matches your quotation structure: service, distance/logistics, discounts and total.</p>
+                                <p>Use the same structure as the RYDE quotation: service, route/logistics, discount and final price.</p>
                             </div>
                             <button type="button" class="btn btn-secondary" id="quotationAddItem">+ Add line</button>
                         </div>
@@ -112,13 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
 
                     <label class="admin-quotation-notes">
-                        Notes / included services
-                        <textarea name="notes" rows="4" placeholder="Optional notes, inclusions, luggage assistance, special arrangements…"></textarea>
+                        Included in your fare / notes
+                        <textarea name="notes" rows="4" placeholder="e.g. Professional chauffeur, vehicle exclusively for your party, standard luggage assistance, agreed pickup arrangements…"></textarea>
                     </label>
 
                     <div class="admin-quotation-preview">
                         <span>Customer</span><strong>${escapeHtml(booking.email)}</strong>
-                        <span>Journey</span><strong>${escapeHtml(booking.booking_date || "—")} · ${escapeHtml(booking.booking_time || "—")}</strong>
+                        <span>Original request fare</span><strong>${fare ? `€${fare.toFixed(2)}` : "Not calculated"}</strong>
                     </div>
 
                     <p class="admin-quotation-warning" id="quotationWarning" hidden></p>
@@ -134,8 +152,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(modal);
 
         const items = modal.querySelector("#quotationItems");
-        addItemRow(items, { description: "Premium chauffeur service", price: Number(booking.fare_eur) || "" });
-        addItemRow(items, { description: "Distance / logistics", price: "" });
+        addItemRow(items, { description: "Premium chauffeur service", price: fare || "" });
+        if (hasDistance) addItemRow(items, { description: `Route distance — ${booking.distance_text || `${distance.toFixed(1)} km`}`, price: "0.00" });
 
         modal.querySelector("#quotationAddItem").addEventListener("click", () => addItemRow(items));
         modal.querySelector(".admin-quotation-close").addEventListener("click", removeModal);
@@ -154,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
             advanceWrap.hidden = !isAdvance;
             advanceInput.required = isAdvance;
             if (paymentMethod.value === "online_full") advanceInput.value = totalInput.value;
+            if (!isAdvance && paymentMethod.value !== "online_full") advanceInput.value = "0";
         };
         paymentMethod.addEventListener("change", updatePaymentFields);
         totalInput.addEventListener("input", () => {
