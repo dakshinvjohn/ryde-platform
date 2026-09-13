@@ -1,9 +1,5 @@
 -- RYDE — bookings table
--- Run this once in the Supabase SQL editor (Project → SQL Editor → New query).
---
--- Already have this table live? Run this instead of the CREATE TABLE
--- below to add the new booking_type column without losing data:
---   alter table public.bookings add column if not exists booking_type text not null default 'ride';
+-- Run this once in the Supabase SQL editor.
 
 create table if not exists public.bookings (
     id uuid primary key default gen_random_uuid(),
@@ -20,26 +16,23 @@ create table if not exists public.bookings (
 
     passengers int not null default 1,
     luggage int not null default 0,
-    booking_type text not null default 'ride', -- 'ride' | 'moving'
+    booking_type text not null default 'ride',
     vehicle text not null default 'car',
     notes text default '',
 
+    -- Google Maps route details captured from the existing route request.
+    distance_km numeric(10, 2),
+    distance_text text,
+    duration_minutes integer,
+    duration_text text,
+
     fare_eur numeric(10, 2) not null default 0,
-    payment_method text not null default 'later', -- 'now' | 'later'
-    payment_status text not null default 'unpaid', -- 'unpaid' | 'paid'
-    stripe_session_id text unique -- only set for 'now' bookings; enforces webhook idempotency
+    payment_method text not null default 'later',
+    payment_status text not null default 'unpaid',
+    stripe_session_id text unique
 );
 
--- Row Level Security: the anon key (used in the browser) gets no
--- direct access to this table at all. Only the server-side API
--- routes (using the service role key, which bypasses RLS) can read
--- or write bookings. This is deliberate — booking data includes
--- customer name/email/phone and shouldn't be queryable from the
--- browser with the public anon key.
 alter table public.bookings enable row level security;
 
--- No policies are created, so with RLS enabled the anon/public role
--- has zero access by default. If you later build a driver dashboard
--- that reads bookings directly from the browser, add an auth-gated
--- policy here (e.g. restricted to a logged-in admin user) rather
--- than opening the table to anon.
+-- Existing installations can run supabase-route-details-migration.sql
+-- to add the four route-detail columns without recreating the table.
