@@ -16,6 +16,7 @@
 
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin-quotations.css">
 
 </head>
 
@@ -105,29 +106,9 @@
 
         <div class="admin-calendar-controls">
 
-            <button
-                class="btn btn-secondary"
-                id="adminCalendarPrev"
-                type="button"
-            >
-                ←
-            </button>
-
-            <button
-                class="btn btn-secondary"
-                id="adminCalendarToday"
-                type="button"
-            >
-                Today
-            </button>
-
-            <button
-                class="btn btn-secondary"
-                id="adminCalendarNext"
-                type="button"
-            >
-                →
-            </button>
+            <button class="btn btn-secondary" id="adminCalendarPrev" type="button">←</button>
+            <button class="btn btn-secondary" id="adminCalendarToday" type="button">Today</button>
+            <button class="btn btn-secondary" id="adminCalendarNext" type="button">→</button>
 
         </div>
 
@@ -136,11 +117,8 @@
     <div class="admin-calendar-title" id="adminCalendarTitle"></div>
 
     <div class="admin-calendar">
-
         <div class="admin-calendar-days" id="adminCalendarDays"></div>
-
         <div class="admin-calendar-grid" id="adminCalendarGrid"></div>
-
     </div>
 
 </section>
@@ -148,10 +126,8 @@
             <!-- Chart -->
 
             <section class="admin-panel">
-
                 <h2>Bookings, last 14 days</h2>
                 <div id="adminChart" class="admin-chart"></div>
-
             </section>
 
             <!-- Bookings table -->
@@ -163,7 +139,6 @@
                     <h2>Recent bookings</h2>
 
                     <div class="admin-table-filters">
-
                         <input type="search" id="adminSearch" placeholder="Search name, email, pickup, destination…">
 
                         <select id="adminStatusFilter">
@@ -177,7 +152,6 @@
                             <option value="ride">Ride</option>
                             <option value="moving">Moving</option>
                         </select>
-
                     </div>
 
                 </div>
@@ -185,7 +159,6 @@
                 <div class="admin-table-wrap">
 
                     <table class="admin-table">
-
                         <thead>
                             <tr>
                                 <th>Created</th>
@@ -195,12 +168,10 @@
                                 <th>Type</th>
                                 <th>Fare</th>
                                 <th>Status</th>
-                                <th></th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-
                         <tbody id="adminTableBody"></tbody>
-
                     </table>
 
                     <p class="admin-table-empty" id="adminTableEmpty" hidden>No bookings match those filters.</p>
@@ -214,6 +185,7 @@
     </div>
 
     <script src="js/admin.js"></script>
+    <script src="js/admin-quotations.js"></script>
 
 </body>
 </html>
