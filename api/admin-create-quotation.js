@@ -15,7 +15,6 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({
 }[c]));
 
 const money = (value) => `€${(Number(value) || 0).toFixed(2).replace(".", ",")}`;
-
 const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
 const makeQuotationNumber = () => {
@@ -27,18 +26,17 @@ const makeQuotationNumber = () => {
 
 const normalizeItems = (items) => {
     if (!Array.isArray(items)) return [];
-
     return items
         .map((item) => ({
             description: String(item?.description || "").trim(),
             price: Number(item?.price) || 0
         }))
-        .filter((item) => item.description);
+        .filter((item) => item.description)
+        .slice(0, 30);
 };
 
 const buildEmail = ({ booking, quotation, items, confirmationUrl, paymentUrl }) => {
     const dutch = quotation.language === "nl";
-
     const text = dutch ? {
         subject: `Uw RYDE-offerte ${quotation.quotation_number}`,
         title: "Offerte en prijsopgave",
@@ -48,7 +46,10 @@ const buildEmail = ({ booking, quotation, items, confirmationUrl, paymentUrl }) 
         date: "Datum",
         time: "Tijd",
         vehicle: "Voertuig",
+        distance: "Afstand",
+        duration: "Reistijd",
         breakdown: "Prijsopbouw",
+        included: "Inbegrepen in uw tarief",
         total: "Totale geoffreerde prijs",
         valid: "Geldig tot",
         confirm: "JA, BEVESTIG MIJN RIT",
@@ -66,7 +67,10 @@ const buildEmail = ({ booking, quotation, items, confirmationUrl, paymentUrl }) 
         date: "Date",
         time: "Time",
         vehicle: "Vehicle",
+        distance: "Distance",
+        duration: "Travel time",
         breakdown: "Price breakdown",
+        included: "Included in your fare",
         total: "Total quoted price",
         valid: "Valid until",
         confirm: "YES, CONFIRM MY RIDE",
@@ -86,33 +90,37 @@ const buildEmail = ({ booking, quotation, items, confirmationUrl, paymentUrl }) 
         `).join("")
         : `<tr><td colspan="2" style="padding:8px 0;color:#777;">${dutch ? "Vaste prijs zoals hieronder vermeld" : "Fixed price as quoted below"}</td></tr>`;
 
+    const routeDetails = [];
+    if (booking.distance_text || Number.isFinite(Number(booking.distance_km))) {
+        routeDetails.push(`${escapeHtml(text.distance)}: ${escapeHtml(booking.distance_text || `${Number(booking.distance_km).toFixed(1)} km`)}`);
+    }
+    if (booking.duration_text || Number.isFinite(Number(booking.duration_minutes))) {
+        routeDetails.push(`${escapeHtml(text.duration)}: ${escapeHtml(booking.duration_text || `${Math.round(Number(booking.duration_minutes))} min`)}`);
+    }
+
+    const notes = String(quotation.notes || "").trim();
+    const notesBlock = notes ? `
+        <h2 style="font-size:18px;margin:28px 0 10px;">${escapeHtml(text.included)}</h2>
+        <div style="padding:15px 16px;background:#f7f5f1;border-radius:9px;white-space:pre-line;line-height:1.6;color:#555;">${escapeHtml(notes)}</div>
+    ` : "";
+
     const paymentBlock = quotation.payment_method === "advance" && paymentUrl
         ? `
             <p style="margin:18px 0 8px;">${escapeHtml(text.paymentNote)}</p>
-            <p style="margin:18px 0;text-align:center;">
-                <a href="${escapeHtml(paymentUrl)}" style="display:inline-block;padding:13px 22px;background:#b9a6ff;color:#17151b;text-decoration:none;border-radius:8px;font-weight:700;">${escapeHtml(text.pay)} — ${money(quotation.advance_eur)}</a>
-            </p>
+            <p style="margin:18px 0;text-align:center;"><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;padding:13px 22px;background:#b9a6ff;color:#17151b;text-decoration:none;border-radius:8px;font-weight:700;">${escapeHtml(text.pay)} — ${money(quotation.advance_eur)}</a></p>
         `
         : quotation.payment_method === "online_full" && paymentUrl
             ? `
-                <p style="margin:18px 0;text-align:center;">
-                    <a href="${escapeHtml(paymentUrl)}" style="display:inline-block;padding:13px 22px;background:#b9a6ff;color:#17151b;text-decoration:none;border-radius:8px;font-weight:700;">${dutch ? "BETAAL VOLLEDIG ONLINE" : "PAY IN FULL ONLINE"} — ${money(quotation.total_eur)}</a>
-                </p>
+                <p style="margin:18px 0;text-align:center;"><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;padding:13px 22px;background:#b9a6ff;color:#17151b;text-decoration:none;border-radius:8px;font-weight:700;">${dutch ? "BETAAL VOLLEDIG ONLINE" : "PAY IN FULL ONLINE"} — ${money(quotation.total_eur)}</a></p>
             `
             : `<p style="margin:18px 0;">${escapeHtml(text.cashNote)}</p>`;
 
     return {
         subject: text.subject,
-        html: `<!doctype html>
-<html lang="${dutch ? "nl" : "en"}">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+        html: `<!doctype html><html lang="${dutch ? "nl" : "en"}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;background:#f5f3ef;font-family:Arial,Helvetica,sans-serif;color:#17151b;">
 <div style="max-width:680px;margin:30px auto;background:#fff;border:1px solid #e7e2da;border-radius:12px;overflow:hidden;">
-    <div style="padding:28px 32px;border-bottom:1px solid #ece8e1;">
-        <div style="font-size:24px;font-weight:700;letter-spacing:.02em;">RYDE<span style="color:#b9a6ff;">.</span></div>
-        <div style="margin-top:18px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#777;">${escapeHtml(text.title)}</div>
-        <h1 style="margin:7px 0 0;font-size:25px;">${escapeHtml(quotation.quotation_number)}</h1>
-    </div>
+    <div style="padding:28px 32px;border-bottom:1px solid #ece8e1;"><div style="font-size:24px;font-weight:700;letter-spacing:.02em;">RYDE<span style="color:#b9a6ff;">.</span></div><div style="margin-top:18px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#777;">${escapeHtml(text.title)}</div><h1 style="margin:7px 0 0;font-size:25px;">${escapeHtml(quotation.quotation_number)}</h1></div>
     <div style="padding:30px 32px;">
         <p style="margin:0 0 10px;font-size:16px;">${escapeHtml(text.intro)}</p>
         <p style="margin:0 0 24px;line-height:1.6;color:#555;">${escapeHtml(text.body)}</p>
@@ -121,22 +129,19 @@ const buildEmail = ({ booking, quotation, items, confirmationUrl, paymentUrl }) 
             <div>${escapeHtml(booking.pickup)} → ${escapeHtml(booking.destination)}</div>
             <div style="margin-top:7px;color:#666;">${escapeHtml(text.date)}: ${escapeHtml(booking.booking_date || "—")} · ${escapeHtml(text.time)}: ${escapeHtml(booking.booking_time || "—")}</div>
             <div style="margin-top:7px;color:#666;">${escapeHtml(text.vehicle)}: ${escapeHtml(booking.vehicle || "—")}</div>
+            ${routeDetails.map((detail) => `<div style="margin-top:7px;color:#666;">${detail}</div>`).join("")}
         </div>
         <h2 style="font-size:18px;margin:28px 0 10px;">${escapeHtml(text.breakdown)}</h2>
         <table style="width:100%;border-collapse:collapse;font-size:14px;">${itemRows}</table>
-        <div style="display:flex;justify-content:space-between;margin-top:16px;padding-top:15px;border-top:2px solid #17151b;font-weight:700;font-size:17px;">
-            <span>${escapeHtml(text.total)}</span><span>${money(quotation.total_eur)}</span>
-        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:16px;padding-top:15px;border-top:2px solid #17151b;font-weight:700;font-size:17px;"><span>${escapeHtml(text.total)}</span><span>${money(quotation.total_eur)}</span></div>
         <p style="margin:12px 0 0;color:#666;font-size:13px;">${escapeHtml(text.valid)}: ${escapeHtml(quotation.valid_until ? new Date(quotation.valid_until).toLocaleDateString(dutch ? "nl-NL" : "en-GB") : "—")}</p>
-        <p style="margin:28px 0 10px;text-align:center;">
-            <a href="${escapeHtml(confirmationUrl)}" style="display:inline-block;padding:14px 24px;background:#17151b;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">${escapeHtml(text.confirm)}</a>
-        </p>
+        ${notesBlock}
+        <p style="margin:28px 0 10px;text-align:center;"><a href="${escapeHtml(confirmationUrl)}" style="display:inline-block;padding:14px 24px;background:#17151b;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;">${escapeHtml(text.confirm)}</a></p>
         ${paymentBlock}
         <p style="margin:28px 0 0;color:#666;font-size:13px;line-height:1.6;">${escapeHtml(text.closing)}</p>
         <p style="margin:24px 0 0;line-height:1.6;">${text.regards}</p>
     </div>
-</div>
-</body></html>`
+</div></body></html>`
     };
 };
 
@@ -145,15 +150,12 @@ module.exports = async (req, res) => {
         res.status(405).json({ error: "Method not allowed" });
         return;
     }
-
     if (!requireAdmin(req, res)) return;
 
     const body = req.body || {};
     const bookingId = body.bookingId;
     const language = body.language === "nl" ? "nl" : "en";
-    const paymentMethod = ["advance", "online_full", "cash", "bank_transfer"].includes(body.paymentMethod)
-        ? body.paymentMethod
-        : "advance";
+    const paymentMethod = ["advance", "online_full", "cash", "bank_transfer"].includes(body.paymentMethod) ? body.paymentMethod : "advance";
     const total = Number(body.totalEur);
     const advance = paymentMethod === "advance" ? Number(body.advanceEur) : paymentMethod === "online_full" ? total : 0;
     const validUntil = body.validUntil ? new Date(body.validUntil) : null;
@@ -163,27 +165,19 @@ module.exports = async (req, res) => {
         res.status(400).json({ error: "Booking and a valid quotation total are required." });
         return;
     }
-
     if (paymentMethod === "advance" && (!Number.isFinite(advance) || advance <= 0 || advance > total)) {
         res.status(400).json({ error: "Advance payment must be greater than zero and no more than the total." });
         return;
     }
-
     if (validUntil && Number.isNaN(validUntil.getTime())) {
         res.status(400).json({ error: "Invalid quotation expiry date." });
         return;
     }
 
     const supabase = getSupabaseAdmin();
-    let quotation = null;
 
     try {
-        const { data: booking, error: bookingError } = await supabase
-            .from("bookings")
-            .select("*")
-            .eq("id", bookingId)
-            .single();
-
+        const { data: booking, error: bookingError } = await supabase.from("bookings").select("*").eq("id", bookingId).single();
         if (bookingError) throw bookingError;
         if (!booking) throw new Error("Booking not found.");
 
@@ -191,7 +185,7 @@ module.exports = async (req, res) => {
         const quotationNumber = makeQuotationNumber();
         const remaining = Math.max(0, total - advance);
 
-        const { data, error } = await supabase
+        const { data: quotationInserted, error } = await supabase
             .from("quotations")
             .insert({
                 booking_id: booking.id,
@@ -205,14 +199,14 @@ module.exports = async (req, res) => {
                 valid_until: validUntil ? validUntil.toISOString() : null,
                 confirmation_token_hash: hashToken(token),
                 token_expires_at: validUntil ? validUntil.toISOString() : null,
-                notes: String(body.notes || "").slice(0, 2000)
+                notes: String(body.notes || "").slice(0, 2000),
+                price_breakdown: items
             })
             .select()
             .single();
 
         if (error) throw error;
-        quotation = data;
-
+        let quotation = quotationInserted;
         let paymentUrl = null;
 
         if (paymentMethod === "advance" || paymentMethod === "online_full") {
@@ -225,31 +219,18 @@ module.exports = async (req, res) => {
                 line_items: [{
                     price_data: {
                         currency: "eur",
-                        product_data: {
-                            name: `RYDE quotation ${quotationNumber}`,
-                            description: `${booking.pickup} -> ${booking.destination}`
-                        },
+                        product_data: { name: `RYDE quotation ${quotationNumber}`, description: `${booking.pickup} -> ${booking.destination}` },
                         unit_amount: Math.round(amount * 100)
                     },
                     quantity: 1
                 }],
-                metadata: {
-                    quotationId: quotation.id,
-                    bookingId: booking.id
-                },
+                metadata: { quotationId: quotation.id, bookingId: booking.id },
                 success_url: `${PUBLIC_URL}/confirm.html?payment=success&token=${encodeURIComponent(token)}`,
                 cancel_url: `${PUBLIC_URL}/confirm.html?payment=cancelled&token=${encodeURIComponent(token)}`
             });
-
             paymentUrl = session.url;
 
-            const { data: updated, error: updateError } = await supabase
-                .from("quotations")
-                .update({ stripe_session_id: session.id })
-                .eq("id", quotation.id)
-                .select()
-                .single();
-
+            const { data: updated, error: updateError } = await supabase.from("quotations").update({ stripe_session_id: session.id }).eq("id", quotation.id).select().single();
             if (updateError) throw updateError;
             quotation = updated;
         }
@@ -257,31 +238,13 @@ module.exports = async (req, res) => {
         const confirmationUrl = `${PUBLIC_URL}/confirm.html?token=${encodeURIComponent(token)}`;
         const email = buildEmail({ booking, quotation, items, confirmationUrl, paymentUrl });
         const resend = getResend();
-
-        const { error: emailError } = await resend.emails.send({
-            from: FROM_ADDRESS,
-            to: booking.email,
-            subject: email.subject,
-            html: email.html
-        });
-
+        const { error: emailError } = await resend.emails.send({ from: FROM_ADDRESS, to: booking.email, subject: email.subject, html: email.html });
         if (emailError) throw emailError;
 
-        const { data: sentQuotation, error: sentError } = await supabase
-            .from("quotations")
-            .update({ status: "sent", sent_at: new Date().toISOString() })
-            .eq("id", quotation.id)
-            .select()
-            .single();
-
+        const { data: sentQuotation, error: sentError } = await supabase.from("quotations").update({ status: "sent", sent_at: new Date().toISOString() }).eq("id", quotation.id).select().single();
         if (sentError) throw sentError;
 
-        res.status(200).json({
-            ok: true,
-            quotation: sentQuotation,
-            paymentUrl
-        });
-
+        res.status(200).json({ ok: true, quotation: sentQuotation, paymentUrl });
     } catch (err) {
         console.error("RYDE: quotation creation failed:", err);
         res.status(500).json({ error: err.message || "Couldn't create and send the quotation." });
