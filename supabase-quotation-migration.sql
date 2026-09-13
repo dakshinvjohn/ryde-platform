@@ -1,8 +1,6 @@
 -- RYDE — quotation workflow
 -- Run this once in the Supabase SQL editor after the existing bookings table exists.
---
--- Flow:
--- request -> quotation -> customer confirmation -> optional advance payment -> confirmed booking
+-- Safe to run again: all additions below use IF NOT EXISTS where appropriate.
 
 create table if not exists public.quotations (
     id uuid primary key default gen_random_uuid(),
@@ -12,17 +10,14 @@ create table if not exists public.quotations (
     booking_id uuid not null references public.bookings(id) on delete cascade,
 
     quotation_number text not null unique,
-    language text not null default 'en', -- 'en' | 'nl'
+    language text not null default 'en',
 
     total_eur numeric(10, 2) not null default 0,
     advance_eur numeric(10, 2) not null default 0,
     remaining_eur numeric(10, 2) not null default 0,
 
     payment_method text not null default 'advance',
-    -- 'advance' | 'online_full' | 'cash' | 'bank_transfer'
-
     status text not null default 'draft',
-    -- 'draft' | 'sent' | 'confirmed' | 'paid' | 'declined' | 'expired'
 
     valid_until timestamptz,
 
@@ -35,8 +30,14 @@ create table if not exists public.quotations (
 
     stripe_session_id text unique,
 
-    notes text default ''
+    notes text default '',
+    price_breakdown jsonb not null default '[]'::jsonb
 );
+
+-- Existing quotations tables created by the earlier version also get the
+-- new structured price breakdown column.
+alter table public.quotations
+    add column if not exists price_breakdown jsonb not null default '[]'::jsonb;
 
 create index if not exists quotations_booking_id_idx
     on public.quotations (booking_id);
@@ -52,7 +53,6 @@ alter table public.quotations enable row level security;
 -- No public/anon policies. Quotations contain customer and payment data
 -- and are accessed only through server-side API routes.
 
--- Keep updated_at current when a quotation row changes.
 create or replace function public.set_quotation_updated_at()
 returns trigger
 language plpgsql
