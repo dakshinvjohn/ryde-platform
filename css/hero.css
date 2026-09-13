@@ -115,7 +115,22 @@
     letter-spacing:.01em;
 
 }
+/* ==========================================
+   HERO BRAND LOGO
+========================================== */
 
+.hero-brand{
+    display:flex;
+    align-items:center;
+    margin-bottom:28px;
+}
+
+.hero-brand img{
+    display:block;
+    width:min(250px, 60vw);
+    height:auto;
+    object-fit:contain;
+}
 /* ==========================================
    HERO TAG
 ========================================== */
@@ -339,6 +354,17 @@
 
     .hero-car-card{
         transition:none;
+    }
+
+}
+@media (max-width:640px){
+
+    .hero-brand{
+        margin-bottom:22px;
+    }
+
+    .hero-brand img{
+        width:150px;
     }
 
 }

@@ -20,17 +20,19 @@ footer{
 
 .footer-logo{
 
-    font-family:var(--font-display);
-    font-size:1.6rem;
-    font-weight:600;
-    margin-bottom:20px;
-    display:inline-block;
+    display:inline-flex;
+    align-items:center;
+    margin-bottom:24px;
+    text-decoration:none;
 
 }
 
-.footer-logo span{
+.footer-logo img{
 
-    color:var(--lavender);
+    display:block;
+    width:150px;
+    height:auto;
+    object-fit:contain;
 
 }
 
@@ -87,5 +89,12 @@ footer p{
     border-top:1px solid var(--line-dark);
     color:var(--slate-dim);
     font-size:.85rem;
+
+}
+@media (max-width:640px){
+
+    .footer-logo img{
+        width:130px;
+    }
 
 }

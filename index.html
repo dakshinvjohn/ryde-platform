@@ -33,9 +33,12 @@
 
             <!-- Logo -->
 
-            <a href="index.html" class="logo">
-                RYDE<span>.</span>
-            </a>
+          <a href="index.html" class="logo">
+    <img
+        src="images/RYDE_DP_LOGO.png"
+        alt="RYDE NL - Premium Chauffeur Service"
+    >
+</a>
 
             <!-- Desktop Navigation -->
 
@@ -86,7 +89,10 @@
             <div class="mobile-nav-header">
 
                 <a href="index.html" class="logo">
-                    RYDE<span>.</span>
+                    <img
+                        src="images/RYDE_DP_LOGO.png"
+                        alt="RYDE NL - Premium Chauffeur Service"
+                    >
                 </a>
 
                 <button
@@ -1582,39 +1588,55 @@
 
         <div class="contact-form reveal">
 
-            <form>
+<form id="contactForm">
 
-                <input
-                    type="text"
-                    placeholder="Full name"
-                    required
-                >
+    <input
+        type="text"
+        name="name"
+        placeholder="Full name"
+        autocomplete="name"
+        required
+    >
 
-                <input
-                    type="email"
-                    placeholder="Email address"
-                    required
-                >
+    <input
+        type="email"
+        name="email"
+        placeholder="Email address"
+        autocomplete="email"
+        required
+    >
 
-                <input
-                    type="tel"
-                    placeholder="Phone number"
-                >
+    <input
+        type="tel"
+        name="phone"
+        placeholder="Phone number"
+        autocomplete="tel"
+    >
 
-                <textarea
-                    rows="6"
-                    placeholder="How can we help?"
-                ></textarea>
+    <textarea
+        name="message"
+        rows="6"
+        placeholder="How can we help?"
+        required
+    ></textarea>
 
-                <button
-                    class="btn btn-primary"
-                    type="submit">
+    <button
+        class="btn btn-primary"
+        type="submit"
+        id="contactSubmit">
 
-                    Send Message
+        Send Message
 
-                </button>
+    </button>
 
-            </form>
+    <p
+        id="contactStatus"
+        role="status"
+        aria-live="polite"
+        hidden>
+    </p>
+
+</form>
 
         </div>
 
@@ -1634,9 +1656,10 @@
 
         <div>
 
-            <span class="footer-logo">
-                RYDE<span>.</span>
-            </span>
+<a href="index.html" class="footer-logo">
+    <img src="images/RYDE_DP_LOGO.png"
+         alt="RYDE NL - Premium Chauffeur Service">
+</a>
 
             <p>
 
@@ -1723,6 +1746,7 @@
 <script src="js/counter.js"></script>
 <script src="js/active-nav.js"></script>
 <script src="js/script.js"></script>
+<script src="js/contact.js"></script>
 
 </body>
 </html>

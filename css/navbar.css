@@ -53,37 +53,35 @@ nav.is-scrolled{
 /* ==========================================
    LOGO
 ========================================== */
+/* ==========================================
+   LOGO
+========================================== */
 
 .logo{
-
-    font-family:var(--font-display);
-
-    font-size:1.7rem;
-
-    font-weight:600;
-
-    letter-spacing:.02em;
-
-    color:var(--plum);
+    display:inline-flex;
+    align-items:center;
+    text-decoration:none;
+    flex-shrink:0;
 
     transition:
-        transform .35s ease,
-        color .35s ease;
+        transform .35s ease;
+}
 
+.logo img{
+    display:block;
+
+    width:180px;
+    height:auto;
+
+    object-fit:contain;
+
+    transition:
+        transform .35s ease;
 }
 
 .logo:hover{
-
     transform:translateY(-2px);
-
 }
-
-.logo span{
-
-    color:var(--lavender);
-
-}
-
 /* ==========================================
    DESKTOP NAVIGATION
 ========================================== */
