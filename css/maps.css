@@ -224,3 +224,33 @@
 
 }
 
+/* ==========================================
+   GOOGLE PLACES AUTOCOMPLETE
+   Keep the suggestion list visible while the
+   user is interacting with the address field,
+   but hide it once they leave the field. The
+   hover exception keeps mouse selection working.
+========================================== */
+
+.pac-container{
+
+    transition:opacity .12s ease, visibility .12s ease;
+
+}
+
+body:not(:has(#pickup:focus, #destination:focus)):not(:has(.pac-item:hover)) .pac-container{
+
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+
+}
+
+body:has(.pac-item:hover) .pac-container{
+
+    visibility:visible;
+    opacity:1;
+    pointer-events:auto;
+
+}
+
