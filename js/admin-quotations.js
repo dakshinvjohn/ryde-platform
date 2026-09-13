@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const button = document.createElement("button");
             button.type = "button";
-            button.className = "admin-status-toggle admin-quotation-btn";
+            button.className = "admin-quotation-btn";
             button.dataset.bookingId = id;
             button.textContent = "Create quotation";
             statusCell.appendChild(button);
