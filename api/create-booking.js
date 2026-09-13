@@ -15,6 +15,16 @@ module.exports = async (req, res) => {
         return;
     }
 
+    const distanceKm = Number(booking.distanceKm);
+    const durationMinutes = Number(booking.durationMinutes);
+
+    const routeData = {
+        distance_km: Number.isFinite(distanceKm) && distanceKm >= 0 ? distanceKm : null,
+        distance_text: booking.distanceText ? String(booking.distanceText).slice(0, 100) : null,
+        duration_minutes: Number.isFinite(durationMinutes) && durationMinutes >= 0 ? Math.round(durationMinutes) : null,
+        duration_text: booking.durationText ? String(booking.durationText).slice(0, 100) : null
+    };
+
     let bookingId = null;
 
     try {
@@ -38,7 +48,8 @@ module.exports = async (req, res) => {
                 notes: booking.notes || "",
                 fare_eur: Number(booking.fareEur) || 0,
                 payment_method: "later",
-                payment_status: "unpaid"
+                payment_status: "unpaid",
+                ...routeData
             })
             .select()
             .single();
